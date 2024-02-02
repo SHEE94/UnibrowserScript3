@@ -1,0 +1,38 @@
+<template>
+	<view class="container">
+		<web-view :src="url" :webview-styles="style" class="webview"></web-view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				url:'',
+				style:{
+					width:'100%',
+					height:'100%',
+				}
+			}
+		},
+		onLoad(options){
+			this.url = options.url
+		},
+		methods: {
+			
+		}
+	}
+</script>
+
+<style lang="less" scoped>
+.container{
+	
+	.webview{
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+}
+</style>

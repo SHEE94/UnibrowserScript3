@@ -1,0 +1,78 @@
+<template>
+	<view class="popup">
+		<view class="mask" @click.stop="close"></view>
+		<menu-component v-if="showEnum == 1"></menu-component>
+		<windows-background v-if="showEnum == 2"></windows-background>
+		<web-action v-if="showEnum == 3" :tag="tag" :src="src" :text="text" :href="href" :className="className" @close="close" :hostname="hostname"></web-action>
+	</view>
+</template>
+
+<script>
+	import menuComponent from '../../components/menu/menu.nvue'
+	import windowsBackground from '../../components/windows-background/windows-background.nvue'
+	import webAction from '../../components/browser/web-action.nvue'
+	const app = getApp()
+	export default {
+		components: {
+			menuComponent,
+			windowsBackground,
+			webAction
+		},
+		data() {
+			return {
+				showEnum: -1,
+				'tag': "",
+				'src': "",
+				'text': "",
+				'className': "",
+				'href': "",
+				'hostname': ""
+			};
+		},
+		mounted() {
+			uni.$on('open-menu', (index) => {
+				this.showEnum = index
+			})
+			uni.$on('popup-hide', () => {
+				this.showEnum = -1
+			})
+			app.globalData.webview.on('POST-MESSAGE', (e) => {
+				
+				this.tag = e.type
+				this.src = decodeURIComponent(e.src)
+				this.href = decodeURIComponent(e.href)
+				this.className = e.className
+				this.hostname = e.hostname
+				this.text = e.text
+			})
+		},
+
+		methods: {
+			close() {
+				// uni.navigateBack()
+				app.globalData.closePopup()
+			}
+		}
+	};
+</script>
+
+<style lang="scss">
+	.popup {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		// background: transparent;
+	}
+
+	.mask {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		// background: rgba($color: #000000, $alpha: 0.3);
+	}
+</style>

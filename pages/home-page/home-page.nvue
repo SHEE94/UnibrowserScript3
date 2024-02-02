@@ -1,0 +1,173 @@
+<template>
+	<view class="home-page-container">
+
+		<radio-group @change="radioChange">
+			<label class="cell-item" v-for="(item, index) in homepageList" :key="item.url">
+				<view class="left">
+					<radio :value="item.url" :checked="item.default" />
+					<view class="item-card">
+						<text class="title">{{ item.title||item.url }}</text>
+					</view>
+				</view>
+				<view class="right">
+					<button size="mini" @click="remove(index)">删除</button>
+				</view>
+			</label>
+		</radio-group>
+
+		<view class="cell-item">
+			<view class="left">
+				<view class="item-card">
+					<input type="text" class="enter-url" v-model="homeurl" />
+				</view>
+			</view>
+			<view class="right">
+				<button size="mini" type="primary" @click="addHome">添加</button>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 主页设置
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+	const app = getApp()
+	export default {
+		data() {
+			return {
+				current: 0,
+				homeurl: '',
+				homepageList: [{
+						title: '开源夸克主页',
+						url: 'ScriptBrowser://html/quarkHomePage/index.html',
+						default: true
+					}, {
+						title: '必应',
+						url: 'https://cn.bing.com/',
+						default: false
+					},
+					{
+						title: '青柠起始页',
+						url: 'https://limestart.cn/',
+						default: false
+					},
+					{
+						title: 'iTab',
+						url: 'https://go.itab.link/',
+						default: false
+					},
+					{
+						title: '爱达杂货铺',
+						url: 'https://adzhp.cn/',
+						default: false
+					},
+
+				]
+			};
+		},
+		onLoad() {
+			this.webview = app.globalData.webview;
+			const homepageList = uni.getStorageSync('homepageList')
+			if (homepageList) {
+				this.homepageList = homepageList
+			}
+
+			const homePage = this.webview.Setting.settingConfig.defaultHome;
+
+			this.homepageList.forEach(item => {
+				if (item.url == homePage.url) {
+					item.default = true
+				}
+			})
+		},
+
+		onUnload() {
+			uni.setStorage({
+				key: 'homepageList',
+				data: this.homepageList
+			})
+		},
+		methods: {
+			addHome() {
+				this.homepageList.push({
+					title: '',
+					url: this.homeurl,
+					default: false
+				})
+				this.homeurl = ''
+			},
+			remove(index) {
+				this.homepageList.splice(index, 1)
+			},
+			radioChange(val) {
+				console.log(val)
+				const detail = val.detail.value;
+				this.homepageList.forEach(item => {
+					if (item.url == detail) {
+						item.default = true
+					} else {
+						item.default = false
+					}
+				})
+				const defaultUrl = this.homepageList.find(item => item.default)
+				console.log(this.homepageList)
+				if (!defaultUrl) return;
+				this.webview.Setting.settingConfig = {
+					defaultHome: {
+						title: '首页',
+						url: this.homepageList.find(item => item.default).url,
+						uuid: this.webview.rid(),
+						visible: true,
+						active: true,
+						parent: null
+					}
+				}
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.cell-item {
+		flex-direction: row;
+		padding: 0 15px;
+		align-items: center;
+
+		.left {
+			flex-direction: row;
+			align-items: center;
+			flex: 8;
+		}
+
+		.right {
+			flex: 1;
+		}
+	}
+
+	.item-card {
+		border-bottom: 1px solid #ccc;
+		padding: $uni-spacing-row-lg;
+		flex: 1;
+
+		// display: flex;
+		.title {
+			flex: 1;
+			font-size: 14px;
+			text-overflow: ellipsis;
+			lines: 1;
+		}
+
+		.enter-url {
+			background-color: #eee;
+			border-radius: 5px;
+		}
+	}
+</style>

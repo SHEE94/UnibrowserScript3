@@ -1,0 +1,242 @@
+
+<template>
+	<view>
+		<tab-bar></tab-bar>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 主页
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	const app = getApp({
+		allowDefault: true
+	})
+
+	let that;
+	import tabBar from '../../components/tabbar/tabbar.nvue';
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		components: {
+			tabBar
+		},
+		data() {
+			return {
+				ind: true,
+				webviewInfo: {
+					title: 'Home Tab',
+					url: app.globalData.homeUrl,
+
+					visible: true,
+					active: true,
+					parent: this
+				},
+				searchEngine: 'https://cn.bing.com/search?q=',
+				webviews: [],
+				webviewStyles: {
+					top: 100,
+					progress: {
+						color: '#008585'
+					}
+				},
+				webviewStyle: {}
+			};
+
+		},
+		onReady() {
+			this.init()
+		},
+		onBackPress() {
+			uni.$emit('back');
+			return true;
+		},
+
+		methods: {
+			to_link(txtContent) {
+				let domainArr = txtContent.split('.');
+				let text = this.searchEngine + txtContent;
+				let reg = /^(http|HTTP|ScriptBrowser)/;
+				if (domainArr.length == 1) {
+					return text;
+				}
+				if (domainArr.length == 2) {
+					if (!reg.test(domainArr[0])) {
+						text = 'https://www.' + txtContent;
+					} else {
+						text = txtContent;
+					}
+				}
+				if (domainArr.length > 2) {
+					if (!reg.test(domainArr[0])) {
+						text = 'https://' + txtContent;
+					} else {
+						text = txtContent;
+					}
+				}
+				return text;
+			},
+			init() {
+
+				this.webview = app.globalData.webview
+				let defaultHome = this.webview.Setting.homePage;
+				let lastPage = this.webview.Setting.getLastWebviews();
+
+				if (lastPage && lastPage.length && this.webview.state.data.settingConfig.lastPage) {
+					lastPage.forEach(item => {
+						this.webview.openNewWindow(item.url, this);
+					})
+
+				} else {
+					this.webview.openNewWindow(defaultHome.url, this);
+				}
+
+
+				this.events();
+
+				this.webview.on('CREATE-WEBVIEW', () => {
+					this.webviews = this.webview.webviews;
+				})
+				this.webview.on('ACTIVE-WEBVIEW', (webview) => {
+					this.setBookmarkInfo(webview)
+				})
+
+				uni.$on('search', searchVal => {
+					let active = this.webview.checkedActiveWebview()
+
+					this.webview.loadURL(this.to_link(searchVal))
+				})
+
+				this.webview.state.getData('loadUrl', (val) => {
+					this.webview.openNewWindow(val, this);
+				})
+				// if (this.webview.state.data.loadUrl) {
+				// 	this.webview.openNewWindow(loadUrl, this);
+				// } else {
+				// 	// 监听loadUrl状态变化
+				// 	this.webview.state.watch('loadUrl', (value) => {
+				// 		this.webview.openNewWindow(value, this);
+				// 	})
+				// }
+
+			},
+
+			// 
+			// async createWindow(info) {
+			// 	let webview = await this.webview.createWebview(info);
+			// 	this.eventListener(webview)
+			// 	return webview;
+			// },
+			// eventListener(webview) {
+			// 	webview.addEventListener('loaded', () => {
+			// 		this.setBookmarkInfo(webview)
+			// 	})
+			// },
+			setBookmarkInfo(webview) {
+				app.globalData.browserInfo.title = webview.getTitle()
+				app.globalData.browserInfo.url = webview.getURL()
+			},
+			events() {
+				uni.$on('back', () => {
+					this.webview.back().then(res => {
+
+						if (!res) {
+							let active = this.webview.checkedActiveWebview()
+							this.webview.closeWindow(active.id);
+							this.webviews = this.webview.webviews;
+							if (!this.webviews.length) {
+								uni.showModal({
+									title: t('moremenu.quit'),
+									content: t('main.tips.13'),
+									success: (res) => {
+										if (res.confirm) {
+											plus.runtime.quit()
+										}
+										if (res.cancel) {
+											this.webview.openNewWindow();
+											app.globalData.closePopup();
+										}
+									}
+								})
+								return;
+							}
+							this.webview.switchingWindow(this.webviews[this.webviews.length - 1].id);
+						}
+					})
+				});
+				that = this;
+				uni.$on('open-bookmark', (item) => {
+
+					this.webview.loadURL(item.url)
+
+				})
+				uni.$on('to-home', () => {
+
+					this.webview.loadURL(this.webview.Setting.homePage.url)
+
+				})
+				uni.$on('forward', () => {
+					this.webview.forward()
+				})
+				const subNVue = uni.getSubNVueById('popup');
+
+				this.webview.on('POST-MESSAGE', info => {
+					console.log(info)
+					app.globalData.webParam = info;
+					if (!app.globalData.showPopup) {
+						app.globalData.showPopup = true;
+						subNVue.show('zoom-out', 0, function() {
+							uni.$emit('open-menu', 3)
+						});
+					}
+
+				})
+
+
+				const activeWebview = app.globalData.webview.activeWebview;
+				this.webview.on('overrideUrlLoading', (url) => {
+
+					if (url.indexOf('javascript') > -1) return;
+					uni.showModal({
+						title: t("browser.tips.10"),
+						content: t("browser.tips.11"),
+						success: res => {
+							if (res.confirm) {
+								let a =
+									`var s_a = document.createElement('a');s_a.setAttribute('href','${url}');s_a.click();`;
+								if (!this.openurlwebview) {
+									this.openurlwebview = plus.webview.create(url);
+								}
+								this.openurlwebview.evalJS(a);
+							}
+						}
+					});
+				})
+			},
+
+			message(e) {},
+			onPostMessage(e) {}
+		}
+	};
+</script>
+
+<style lang="scss">
+
+</style>

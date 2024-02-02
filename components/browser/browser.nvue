@@ -1,0 +1,162 @@
+<template>
+	<view></view>
+</template>
+
+<script>
+import { WebView } from '../../libs/browser.core.js';
+import setting from '../../libs/src/setting.js'
+const app = getApp();
+let that;
+export default {
+	name: 'browser',
+	data() {
+		return {
+			ind: true,
+			webviewInfo:{
+				title: '首页',
+				url: app.globalData.homeUrl,
+				
+				message: this.message,
+				onPostMessage: this.onPostMessage,
+				visible: true,
+				active: true
+			},
+			webviews: [],
+			webviewStyles: {
+				top: 100,
+				progress: {
+					color: '#008585'
+				}
+			},
+			webviewStyle: {}
+		};
+	},
+
+	created() {
+		
+		// 来自网页的消息
+		// uni.$on('post-message',(options)=>{
+		// 	const subNVue = uni.getSubNVueById('popup');
+		// 	subNVue.show('zoom-out', 0, function() {
+		// 		uni.$emit('open-menu',3)
+		// 	});
+		// })
+		// 来自搜索页面的信息
+		uni.$on('search',(searchVal)=>{
+			
+		})
+	},
+	mounted() {},
+	methods: {
+		init(component) {
+			this._self = component;
+			this.webview = new WebView(component);
+			
+			this.webview.plusInstall(setting)
+			
+			app.globalData.webview = this.webview ;
+			this.createWindow(this.webviewInfo);
+			this.events();
+			
+			this.webview.on('CREATE-WEBVIEW',()=>{
+				this.webviews = this.webview.webviews;
+			})
+			this.webview.on('ACTIVE-WEBVIEW', (webview)=>{
+				this.setBookmarkInfo(webview)
+			})
+			
+			uni.$on('search',searchVal=>{
+				let active = this.webview.checkedActiveWebview()
+				active.loadURL(searchVal)
+			})
+		},
+		
+		// 
+		async createWindow(info){
+			let webview = await this.webview.createWebview(info);
+			this.eventListener(webview)
+			return webview;
+		},
+		eventListener(webview){
+			webview.addEventListener('loaded',()=>{
+				this.setBookmarkInfo(webview)
+			})
+		},
+		setBookmarkInfo(webview){
+			app.globalData.browserInfo.title = webview.getTitle()
+			app.globalData.browserInfo.url = webview.getURL()
+		},
+		events() {
+			uni.$on('back', () => {
+				this.webview.back().then(res=>{
+					console.log(res)
+					if(!res){
+						let active = this.webview.checkedActiveWebview()
+						this.webview.closeWindow(active.id);
+						this.webviews = this.webview.webviews;
+						if (!this.webviews.length) {
+							uni.showModal({
+								title:'退出',
+								content:'是否退出应用？',
+								success:(res)=> {
+									if(res.confirm){
+										plus.runtime.quit()
+									}
+									if(res.cancel){
+										this.webview.openNewWindow();
+										app.globalData.closePopup();
+									}
+								}
+							})
+							return;
+						}
+						this.webview.switchingWindow(this.webviews[this.webviews.length - 1].id);
+					}
+				})
+			});
+			that = this;
+			uni.$on('open-bookmark',(item)=>{
+				let active = this.webview.checkedActiveWebview()
+				if(active){
+					active.loadURL(item.url)
+				}
+			})
+			uni.$on('to-home',()=>{
+				let active = this.webview.checkedActiveWebview()
+				if(active){
+					active.loadURL(app.globalData.homeUrl)
+				}
+			})
+			uni.$on('forward',()=>{
+				this.webview.forward()
+			})
+			const subNVue = uni.getSubNVueById('popup');
+			
+			this.webview.on('POST-MESSAGE',info=>{
+				console.log(info)
+				app.globalData.webParam = info;
+				if(!app.globalData.showPopup){
+					app.globalData.showPopup = true;
+					subNVue.show('zoom-out', 0, function() {
+						uni.$emit('open-menu',3)
+					});
+				}
+				
+			})
+		},
+
+		message(e) {},
+		onPostMessage(e) {}
+	}
+};
+</script>
+
+<style lang="scss">
+.webview {
+	position: fixed;
+}
+.hidden {
+	visibility: hidden;
+	// left: -500px;
+}
+</style>

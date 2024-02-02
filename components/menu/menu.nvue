@@ -1,0 +1,210 @@
+<template>
+	<view class="menu-content" ref="menu" elevation="15px">
+		<uni-grid :column="5" :showBorder="false" :square="false">
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.collect)">
+					<text class="cc-font icon">&#xe659;</text>
+					<text class="itme-text">{{$t('main.tips.4')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.bookmark)">
+					<text class="cc-font icon">&#xe686;</text>
+					<text class="itme-text">{{$t('main.tips.5')}}/{{$t('main.tips.6')}}</text>
+				</view>
+			</uni-grid-item>
+
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.reload)">
+					<text class="cc-font icon">&#xe602;</text>
+					<text class="itme-text">{{$t('main.tips.7')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.readmod)">
+					<text class="cc-font icon">&#xe6a0;</text>
+
+					<text class="itme-text"> {{!read?$t('main.tips.8'):$t('script.tips.7')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.full)">
+					<text class="cc-font icon">&#xe61f;</text>
+					<text class="itme-text">{{$t('main.tips.9')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.tools)">
+					<text class="cc-font icon">&#xe6fa;</text>
+					<text class="itme-text">{{$t('main.tips.10')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.extension)">
+					<text class="cc-font icon">&#xe65a;</text>
+					<text class="itme-text">{{$t('main.tips.11')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.more)">
+					<text class="cc-font icon">&#xe63f;</text>
+					<text class="itme-text">{{$t('main.tips.12')}}</text>
+				</view>
+			</uni-grid-item>
+
+			<view class=""></view>
+		</uni-grid>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+	
+	const {
+		t,setLocale
+	} = initVueI18n(messages)
+	const animation = uni.requireNativePlugin('animation');
+	import uniGrid from '../uni-grid/components/uni-grid/uni-grid.vue';
+	import uniGridItem from '../uni-grid/components/uni-grid-item/uni-grid-item.vue';
+	const app = getApp();
+	let _self = null;
+	
+	export default {
+		components: {
+			uniGrid,
+			uniGridItem
+		},
+		name: 'menu',
+		data() {
+			return {
+				read: false,
+				menuType: {
+					collect: 1, //收藏
+					bookmark: 2, //书签
+					reload: 3, //刷新
+					readmod: 4, //阅读
+					full: 5, //全屏
+					tools: 6, //工具
+					extension: 7, //扩展
+					more: 8, //更多设置
+				}
+			};
+		},
+		created(){
+			const settingConfig = app.globalData.webview.Setting.settingConfig;
+			setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+			_self = this;
+		},
+		mounted() {
+			
+			this.read = app.globalData.webview.Setting.read
+			this.init();
+		},
+
+		methods: {
+			$t:t,
+			init() {
+				this.menuEl = this.$refs.menu;
+				animation.transition(this.menuEl, {
+					styles: {
+						transform: 'translateY(0%)',
+						transformOrigin: 'center center',
+						opacity: 1
+					},
+					duration: 300, //ms
+					timingFunction: 'ease',
+					delay: 0 //ms
+				});
+
+			},
+			closeMask() {
+				app.globalData.closePopup();
+			},
+			change(num) {
+				
+				_self.closeMask();
+				let webview = app.globalData.webview;
+				switch (num) {
+					case this.menuType.collect:
+						uni.navigateTo({
+							url: '/pages/add-bookmark/add-bookmark'
+						});
+						break;
+					case this.menuType.bookmark:
+						uni.navigateTo({
+							url: '/pages/bookmark/bookmark'
+						});
+						break;
+					case this.menuType.reload:
+						let activeWindow = webview.checkedActiveWebview();
+						if (activeWindow) {
+							activeWindow.reload();
+						}
+						break;
+					case this.menuType.readmod:
+						this.read = webview.Setting.read
+						webview.emit('READ-MODE')
+						break;
+					case this.menuType.full:
+						webview.Setting.full = !webview.Setting.full
+					break;
+					case this.menuType.tools:
+
+						// 工具
+						uni.navigateTo({
+							url: '/pages/website-info/website-info'
+						})
+						break;
+					case this.menuType.more:
+						uni.navigateTo({
+							url: '/pages/setting/setting'
+						})
+						break;
+				}
+				
+			}
+		}
+	};
+</script>
+
+<style lang="scss">
+	.menu-content {
+		position: fixed;
+		transform: translateY(100%);
+		opacity: 0;
+		border-radius: $uni-spacing-row-lg;
+		bottom: $uni-spacing-row-lg;
+		left: $uni-spacing-row-lg;
+		right: $uni-spacing-row-lg;
+		// height: 230px;
+		background-color: #eee;
+		padding: $uni-spacing-row-lg;
+
+		.item {
+			height: 80px;
+			align-items: center;
+			justify-content: center;
+
+			&:active {
+				background-color: rgba($color: #000000, $alpha: 0.3);
+				border-radius: 100%;
+			}
+
+			.icon {
+				font-size: 25px;
+				color: $uni-text-color;
+			}
+
+			.itme-text {
+				font-size: 12px;
+				margin-top: 10px;
+				color: $uni-text-color;
+				text-align: center;
+			}
+		}
+	}
+</style>

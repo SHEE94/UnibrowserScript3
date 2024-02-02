@@ -1,0 +1,249 @@
+<template>
+	<view class="windows-bg-content" ref="windowsBg">
+		<view class="bottom-btn">
+			<text class="btn-text" @click.stop="createWindow">{{$t("bgwindow.open.window")}}</text>
+			<text class="btn-text" @click.top="closeAllWindow">{{$t('bgwindow.closeall.window')}}</text>
+		</view>
+		<scroll-view scroll-y="true" class="scroll" :show-scrollbar="false">
+			<view>
+				<view class="window" v-for="(item, index) in webviews" :key="item.id" :ref="item.id">
+					<view class="sett-bar">
+						<text class="title">{{ item.getTitle() | textOver }}</text>
+						<view  @click.stop="closeWindow(item.id)"  class="close-btn"><text class="text">{{$t('bgwindow.close.window')}}</text></view>
+					</view>
+					
+					<view class="img" @click.stop="open(item.id)">
+						<image :ref="'img_' + item.id" v-if="showImg" :src="item.img" mode="aspectFill"
+							class="window-img"></image>
+					</view>
+					
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+	
+	const {
+		t,setLocale
+	} = initVueI18n(messages)
+	const app = getApp();
+	const animation = uni.requireNativePlugin('animation');
+	export default {
+		name: 'windows-background',
+		data() {
+			return {
+				webviews: [],
+				showImg: false,
+				loadCount: 0
+			};
+		},
+		created() {
+			const settingConfig = app.globalData.webview.Setting.settingConfig;
+			setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+			this.webview = app.globalData.webview;
+			this.webviews = this.webview.webviews;
+			setTimeout(() => {
+				this.showImg = true;
+			});
+		},
+		filters: {
+			textOver(text) {
+				if (text && text.length > 5) {
+					return text.slice(0, 5) + '...';
+				}
+				return text;
+			}
+		},
+		mounted() {
+			this.windowsBgEl = this.$refs.windowsBg;
+			animation.transition(this.windowsBgEl, {
+				styles: {
+					transform: 'translateX(0%)',
+					transformOrigin: 'center center',
+					opacity: 1
+				},
+				duration: 200, //ms
+				timingFunction: 'ease',
+				delay: 0 //ms
+			});
+
+			for (let i = 0; i < this.webviews.length; i++) {
+				setTimeout(
+					j => {
+						this.imgLoad('img_' + this.webviews[j].id);
+					},
+					500,
+					i
+				);
+			}
+		},
+		methods: {
+			$t:t,
+			createWindow() {
+				
+				this.webview.openNewWindow(this.webview.Setting.settingConfig.defaultHome.url);
+				app.globalData.closePopup();
+			},
+			closeAllWindow() {
+				this.webview.closeAllWindow()
+				this.webview.openNewWindow(this.webview.Setting.settingConfig.defaultHome.url);
+				this.webviews = this.webview.webviews;
+
+				app.globalData.closePopup();
+			},
+			async closeWindow(id) {
+				await this.closeAnimation(id);
+				this.webview.closeWindow(id);
+				this.webviews = this.webview.webviews;
+				// 如果窗口列表为空则创建新窗口
+				if (!this.webviews.length) {
+					this.webview.openNewWindow(this.webview.Setting.settingConfig.defaultHome.url);
+					app.globalData.closePopup();
+				}
+				// 关闭当前窗口则显示最后一个窗口
+				if (!this.webview.checkedActiveWebview()) {
+					this.webview.switchingWindow(this.webviews[this.webviews.length - 1].id);
+					app.globalData.closePopup();
+				}
+			},
+			imgLoad(id) {
+				
+				let El = this.$refs[id];
+				if (!El) return;
+				animation.transition(
+					El[0], {
+						styles: {
+							transform: 'scale(1)',
+							transformOrigin: 'center center',
+							opacity: 1
+						},
+						duration: 200, //ms
+						timingFunction: 'ease',
+						delay: 0 //ms
+					},
+					() => {
+						// console.log('finish');
+					}
+				);
+			},
+			open(id) {
+				this.webview.switchingWindow(id);
+				app.globalData.closePopup();
+			},
+			// 关闭动画
+			closeAnimation(id) {
+				return new Promise(res => {
+					let El = this.$refs[id][0];
+					animation.transition(
+						El, {
+							styles: {
+								transform: 'scale(0)',
+								transformOrigin: 'center center',
+								opacity: 0
+							},
+							duration: 200, //ms
+							timingFunction: 'ease',
+							delay: 0 //ms
+						},
+						() => {
+							res(true);
+						}
+					);
+				});
+			}
+		}
+	};
+</script>
+
+<style lang="scss">
+	.windows-bg-content {
+		position: fixed;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		width: 180px;
+		transform: translateX(50%);
+		opacity: 0;
+		background-color: rgba($color: #000000, $alpha: 0.8);
+
+		padding: $uni-spacing-row-lg;
+
+		.scroll {
+			position: absolute;
+			top: $uni-spacing-row-lg + 10px;
+			left: $uni-spacing-row-lg;
+			right: $uni-spacing-row-lg;
+			bottom: $uni-spacing-row-lg + 15px;
+			// background: #eee;
+		}
+
+		.window {
+			height: 200px;
+			width: 150px;
+			margin-bottom: $uni-spacing-col-lg;
+			position: relative;
+
+			.sett-bar{
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				padding-bottom: $uni-spacing-col-sm;
+				.title {
+					
+					text-overflow: ellipsis;
+					font-size: 17px;
+					color:$uni-text-color-inverse;
+				}
+				.close-btn {
+					
+					.text{
+						font-size: 17px;
+						color: $uni-text-color-inverse;
+					}
+				}
+			}
+			
+
+			.img {
+				width: 150px;
+				height: 180px;
+				background-color: #eee;
+				border-radius: $uni-spacing-row-lg;
+				// border-radius: 10px;
+				overflow: hidden;
+
+				.window-img {
+					transform: scale(0);
+					overflow: hidden;
+					// border-radius: 10px;
+					background-color: #eee;
+				}
+			}
+		}
+
+		.bottom-btn {
+			position: fixed;
+			bottom: 0;
+			width: 180px;
+			right: 0;
+			height: 44px;
+			background-color: rgba($color: #000000, $alpha: 0.8);
+			align-items: center;
+			flex-direction: row;
+
+			.btn-text {
+				color: #fff;
+				text-align: center;
+				flex: 1;
+				font-size: 12px;
+			}
+		}
+	}
+</style>

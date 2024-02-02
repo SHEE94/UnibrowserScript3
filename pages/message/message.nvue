@@ -1,0 +1,33 @@
+<template>
+	<view>
+		
+	</view>
+</template>
+
+<script>
+	const app = getApp()
+	export default {
+		data() {
+			return {
+				
+			}
+		},
+		onLoad(options) {
+			console.log(options)
+			if(options && options.from == 'web'){
+				app.globalData.webParam = options;
+				uni.$emit('post-message',options)
+				setTimeout(()=>{
+					uni.navigateBack()
+				},100)
+			}
+		},
+		methods: {
+			
+		}
+	}
+</script>
+
+<style>
+
+</style>

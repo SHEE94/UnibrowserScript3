@@ -1,0 +1,184 @@
+<template>
+	<view class="content">
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t("privacy.location")}}</text>
+				<text class="desc">{{$t("privacy.location.desc")}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.location" data-type="location" @change="change" />
+			</view>
+		</view>
+
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t("privacy.cookie")}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.cookies" data-type="cookies" @change="change" />
+			</view>
+		</view>
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t("privacy.clipboard")}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.clipboard" data-type="clipboard" @change="change" />
+			</view>
+		</view>
+		<view class="list">
+			<view class="left-info"><text class="label">{{$t('privacy.redirect')}}</text></view>
+			<view class="arr">
+				<switch :checked="settingConfig.redirect" data-type="redirect" @change="change" />
+			</view>
+		</view>
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.timer')}}</text>
+				<text class="desc">{{$t('privacy.timer.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.timer" data-type="timer" @change="change" />
+			</view>
+		</view>
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.addScript')}}</text>
+				<text class="desc">{{$t('privacy.addScript.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.addScript" data-type="addScript" @change="change" />
+			</view>
+		</view>
+
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.nonstandardTag')}}</text>
+				<text class="desc">{{$t('privacy.nonstandardTag.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.nonstandardTag" data-type="nonstandardTag" @change="change" />
+			</view>
+		</view>
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.fingerprint')}}</text>
+				<text class="desc">{{$t('privacy.fingerprint.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.fingerprint" data-type="fingerprint" @change="change" />
+			</view>
+		</view>
+
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.auto.download')}}</text>
+				<text class="desc">{{$t('privacy.auto.download.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.autoDownload" data-type="autoDownload" @change="change" />
+			</view>
+		</view>
+
+
+		<view class="list">
+			<view class="left-info">
+				<text class="label">{{$t('privacy.otherWebsite')}}</text>
+				<text class="desc">{{$t('privacy.otherWebsite.desc')}}</text>
+			</view>
+			<view class="arr">
+				<switch :checked="settingConfig.otherWebsite" data-type="otherWebsite" @change="change" />
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 隐私设置
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	const app = getApp()
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		data() {
+			return {
+				settingConfig: {}
+			};
+		},
+		onLoad() {
+			this.webview = app.globalData.webview;
+			let settingConfig = this.webview.Setting.settingConfig;
+			
+			if (settingConfig) {
+				this.settingConfig = settingConfig;
+			}
+		},
+		onHide() {
+			this.webview.Setting.settingConfig = this.settingConfig
+		},
+		onUnload() {
+			this.webview.Setting.settingConfig = this.settingConfig
+		},
+		methods: {
+			$t: t,
+			change(e) {
+				let val = e.detail.value;
+				let _type = e.currentTarget.dataset.type;
+				this.settingConfig[_type] = val
+			}
+		}
+	}
+</script>
+
+<style lang="less">
+	.content {
+		padding: 15px 7px;
+		background-color: #eeeeee;
+		min-height: 100vh;
+		box-sizing: border-box;
+	}
+
+	.list {
+		flex-direction: row;
+		margin-bottom: 10px;
+		align-items: center;
+		justify-content: space-between;
+		padding: 7px 10px;
+		background-color: #f7f7f7;
+
+		.left-info {
+
+			flex: 7.5;
+
+			.desc {
+				font-size: 10px;
+				color: #999;
+			}
+
+			.icon {
+				margin-right: 5px;
+				font-size: 15px;
+				margin-bottom: -2px;
+			}
+		}
+
+	}
+</style>

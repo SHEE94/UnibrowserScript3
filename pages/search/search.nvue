@@ -1,0 +1,74 @@
+<template>
+	<view>
+		<view class="search-input">
+			<input class="input-text" type="text" v-model="searchVal" placeholder="搜索或输入网址" confirm-type="search"
+				@confirm="searchConfirm" />
+			<text class="cc-font clear-history" @click="searchVal = ''">&#xe62b;</text>
+		</view>
+		<view class="history-tag"></view>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 搜索
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+	const app = getApp()
+	export default {
+		data() {
+			return {
+				searchVal: ''
+			};
+		},
+		onLoad(options) {
+			let url = decodeURIComponent(options.url)
+			if (url.indexOf('file') == -1) {
+				this.searchVal = url;
+			}
+
+		},
+		methods: {
+			searchConfirm() {
+				
+				uni.$emit('search', this.searchVal)
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 200)
+
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.search-input {
+		height: 35px;
+		background-color: #ccc;
+		position: fixed;
+		left: $uni-spacing-row-lg;
+		right: $uni-spacing-row-lg;
+		border-radius: 50px;
+		overflow: hidden;
+		padding: 0 $uni-spacing-row-lg;
+		justify-content: space-between;
+		align-items: center;
+		flex-direction: row;
+
+		.input-text {
+			height: 35px;
+			flex: 1;
+			font-size: 12px;
+		}
+
+		.clear-history {
+			font-size: 15px;
+		}
+	}
+</style>

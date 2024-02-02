@@ -1,0 +1,236 @@
+<template>
+	<view class="menu-content">
+		<view class="list-content">
+			<view class="url-text" v-if="href && href != 'undefined'"><text class="color999">{{href}}</text></view>
+			<template v-if="href && href != 'undefined'">
+				<view class="btn" @click="menuChange(ACTION_TYPE.openBg,href)"><text>{{$t("menu.background.open")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.openNew,href)"><text>{{$t("menu.new.open")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyLink,href)"><text>{{$t("menu.copy.link")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.overrLink,href)"><text>{{$t("menu.inter.link")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.adurl)"><text>{{$t("menu.inter.website")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyText)"><text>{{$t("menu.copy.link.text")}}</text></view>
+			</template>
+			<template v-if="src && src != 'undefined'">
+				<view class="btn" @click="menuChange(ACTION_TYPE.saveImg)"><text>{{$t("menu.save.img")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.preview)"><text>{{$t("menu.preivew.img")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyImgLink,src)"><text>{{$t("menu.copy.img")}}</text></view>
+				<view v-if="tag == 'VIDEO'" class="btn" @click="menuChange(ACTION_TYPE.openVideo,src)"><text>{{$t("menu.open.play")}}</text>
+				</view>
+			</template>
+			<view class="btn" v-if="text && text != 'undefined'" @click="menuChange(ACTION_TYPE.copyChangeText)">
+				<text>{{$t("menu.copy.text")}}</text></view>
+			<view class="btn" @click="menuChange(ACTION_TYPE.ad)"><text>{{$t("menu.ad")}}</text></view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t
+	} = initVueI18n(messages)
+	const app = getApp()
+	export default {
+		name: 'menu-call',
+		props: ['tag', 'src', 'text', 'className', 'href', 'hostname'],
+		data() {
+			return {
+				ACTION_TYPE:{
+					openBg:0,
+					openNew:1,
+					copyLink:2,
+					overrLink:3,
+					adurl:4,
+					copyText:5,
+					saveImg:6,
+					preview:7,
+					copyImgLink:8,
+					openVideo:9,
+					copyChangeText:10,
+					ad:11
+				},
+				webview:null
+			};
+		},
+		created(){
+			
+		},
+		methods: {
+			$t: t,
+			clipText(text) {
+				uni.setClipboardData({
+					data: text,
+					success: (res) => {
+						plus.nativeUI.toast(this.$t("menu.copy.clip"));
+					}
+				})
+			},
+			menuChange(str, url) {
+				switch (str) {
+					case this.ACTION_TYPE.openBg:
+						app.globalData.webview.openBGWindow(url)
+						break;
+					case this.ACTION_TYPE.openNew:
+						app.globalData.webview.openNewWindow(this.href)
+						break;
+					case this.ACTION_TYPE.copyImgLink:
+						this.clipText(this.src)
+						break;
+					case this.ACTION_TYPE.copyLink:
+						this.clipText(this.href)
+						break;
+					case this.ACTION_TYPE.overrLink:
+						let urls = uni.getStorageSync('overrideurl')
+						urls += ',' + url
+						uni.setStorageSync('overrideurl', urls)
+						break;
+					case this.ACTION_TYPE.copyText:
+						this.clipText(this.text)
+						break;
+					case this.ACTION_TYPE.saveImg:
+						uni.downloadFile({
+							url: this.src,
+							success: (res) => {
+								let path = res.tempFilePath;
+								uni.saveImageToPhotosAlbum({
+									filePath: path,
+									success: (res) => {
+										plus.nativeUI.toast(this.$t("menu.tips.1"));
+									},
+									fail: (res) => {
+										plus.nativeUI.toast(this.$t("menu.tips.2"));
+										uni.saveFile({
+											tempFilePath: path,
+											success: (res) => {
+												plus.nativeUI.toast(this.$t(
+														"menu.tips.3") + '：' + res
+													.savedFilePath);
+											}
+										})
+									}
+								})
+
+							}
+						})
+						break;
+					case this.ACTION_TYPE.preview:
+						uni.previewImage({
+							urls: [this.src]
+						})
+						break;
+					case this.ACTION_TYPE.copyChangeText:
+						this.clipText(this.text)
+						break;
+					case this.ACTION_TYPE.openVideo:
+						this.openSysVideo(this.src)
+						break;
+					case this.ACTION_TYPE.ad:
+						let adlist = uni.getStorageSync('adList') || []
+						let has = false;
+						for (let i = 0; i < adlist.length; i++) {
+							if (adlist[i].hostname == this.hostname) {
+								has = true;
+								adlist[i].classList.unshift(this.className)
+							}
+						}
+						if (!has) {
+							let ad = {
+								hostname: this.hostname,
+								classList: [this.className]
+							}
+							adlist.unshift(ad)
+						}
+						uni.setStorageSync('adList', adlist)
+						uni.$emit('AD', {
+							className: this.className
+						})
+						break;
+					case this.ACTION_TYPE.adurl:
+						if (this.href) {
+							this.urls = uni.getStorageSync('overrideurl') || '';
+							let hostarr = this.href.split('.');
+							this.urls += ',' + hostarr[1];
+							uni.setStorageSync('overrideurl', this.urls)
+						}
+						break;
+				}
+				this.close()
+			},
+			close() {
+				this.$emit('close')
+			},
+			openSysVideo(src) {
+				var Intent = plus.android.importClass("android.content.Intent");
+				var Uri = plus.android.importClass("android.net.Uri");
+				var main = plus.android.runtimeMainActivity();
+				var intent = new Intent(Intent.ACTION_VIEW);
+				var uri = Uri.parse(src);
+				intent.setDataAndType(uri, "video/*");
+				main.startActivity(intent);
+			}
+		}
+	};
+</script>
+
+<style lang="less">
+	.menu-content {
+		
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		top: 0;
+		background: rgba(0, 0, 0, .5);
+		.list-content {
+			
+			// position: fixed;
+			width: 300px;
+			background: #fefefe;
+			padding: 15px;
+			border-radius: 10px;
+			// transform: translate(50%, 50%);
+			// transform-origin: 0% 0%;
+			// border:1px solid #ccc;
+			box-shadow: 0 0 20px 0px #515151;
+			// max-height: 90%;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			.color555{
+				color: #515151;
+			}
+			.color999{
+				font-size: 12px;
+				color: #999;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				height: 16px;
+			}
+			.url-text {
+				
+				color: #999;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				height: 24px;
+			}
+
+			.btn {
+				color: #515151;
+				// border-bottom: 1px solid #C0C0C0;
+				padding: 10px;
+
+			}
+
+			.btn:nth-last-child(1) {
+				border-bottom: none;
+			}
+		}
+	}
+</style>

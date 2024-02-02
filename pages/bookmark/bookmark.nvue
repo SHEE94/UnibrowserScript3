@@ -1,0 +1,222 @@
+<template>
+	<view class="content">
+		<uni-segmented-control class="segmented" :current="current" @clickItem="onClickItem" :values="items"
+			styleType="button" activeColor="#515151"></uni-segmented-control>
+		<view class="scroll-content">
+			<view class="list-item" v-if="current == 0">
+				<uni-swipe-action>
+					<action-item :right-options="options" v-for="(item,index) in bookmark" :key="item.title"
+						@click="clickBookmark($event,item.id)">
+						<view class="item-card" @click="openBookmark(item)">
+							<text class="title">{{ item.title }}</text>
+						</view>
+					</action-item>
+				</uni-swipe-action>
+			</view>
+			<view class="list-item" v-if="current == 1">
+				<uni-swipe-action>
+					<action-item :right-options="hoptions" v-for="(item, index) in history" :key="index"
+						@click="clickHistory($event,item.id)">
+						<view class="item-card" @click.stop="openBookmark(item)">
+							<text class="title">{{ item.title  }}</text>
+							<text class="title">{{ item.url}}</text>
+						</view>
+					</action-item>
+				</uni-swipe-action>
+				<view class="botton-menu-bar">
+					<button type="default" class="btn" @click="clear">{{$t('search.tips.1')}}</button>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 书签和搜索历史
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	import uniSegmentedControl from '../../components/uni-segmented-control/components/uni-segmented-control/uni-segmented-control.vue';
+	import uniSwipeAction from '../../components/uni-swipe-action/components/uni-swipe-action/uni-swipe-action.vue';
+	import actionItem from '../../components/uni-swipe-action/components/uni-swipe-action-item/uni-swipe-action-item.vue';
+	// import { initVueI18n } from '@dcloudio/uni-i18n';
+	// const { t } = initVueI18n(messages);
+	const app = getApp()
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		components: {
+			uniSegmentedControl,
+			uniSwipeAction,
+			actionItem
+		},
+		data() {
+			return {
+				items: [t('moremenu.bookmark'), t('main.tips.6')],
+				current: 0,
+				bookmark: [],
+				// t,
+				options: [{
+						text: t("bookmark.tips.8"),
+						key: 'EncryptionSharing',
+						style: {
+							backgroundColor: '#cccccc'
+						}
+					},{
+						text: t('script.tips.9'),
+						key: 'edit',
+						style: {
+							backgroundColor: '#007aff'
+						}
+					},
+					{
+						text: t('script.tips.10'),
+						key: 'delete',
+						style: {
+							backgroundColor: '#cc6666'
+						}
+					}
+				],
+				hoptions: [{
+					text: t('script.tips.10'),
+					key: 'delete',
+					style: {
+						backgroundColor: '#cc6666'
+					}
+				}],
+				history: []
+			};
+		},
+		filters: {
+			textOver(text, num = 5) {
+				if (text && text.length > num) {
+					return text.slice(0, num) + '...';
+				}
+				return text;
+			}
+		},
+		onReady() {
+			this.webview = app.globalData.webview;
+			this.initList()
+			uni.$on('UPDATE-BOOKMARK', () => {
+				this.initList()
+			})
+		},
+		destroyed() {
+			uni.$off('UPDATE-BOOKMARK')
+		},
+		methods: {
+			$t: t,
+			initList() {
+				let bookmark = this.webview.Bookmark.get();
+				const history = this.webview.History.get()
+				this.history = history.slice(0,100)
+				if (bookmark) {
+					this.bookmark = bookmark;
+				}
+			},
+			onClickItem(e) {
+				this.current = e.currentIndex;
+			},
+			clickBookmark(e, id) {
+				let key = e.content.key;
+				if (key == 'edit') {
+					uni.navigateTo({
+						url: '/pages/add-bookmark/add-bookmark?id=' + id
+					});
+				} else if (key == 'delete') {
+					this.webview.Bookmark.del(id);
+				}
+				// this.bookmark = this.webview.Bookmark.get()
+			},
+			clickHistory(e, id) {
+				let key = e.content.key;
+				if (key == 'delete') {
+					app.globalData.webview.History.del(id);
+					this.history = app.globalData.webview.History.get()
+				}
+			},
+			openBookmark(item) {
+				uni.$emit('open-bookmark', item);
+				uni.navigateBack();
+			},
+			clear() {
+				app.globalData.webview.History.clear()
+				this.history = app.globalData.webview.History.get()
+			}
+		}
+	};
+</script>
+
+<style lang="scss">
+	.content {
+		padding: $uni-spacing-row-lg;
+
+		.segmented {
+			position: fixed;
+			top: 0;
+			left: $uni-spacing-row-lg;
+			right: $uni-spacing-row-lg;
+			background-color: $uni-bg-color-grey;
+		}
+
+		.scroll-content {
+			padding-top: 40px;
+		}
+
+		.item-card {
+			border-bottom: 1px solid #ccc;
+			padding: $uni-spacing-row-lg 0;
+
+			// display: flex;
+			.title {
+				flex: 1;
+				font-size: 14px;
+				text-overflow: ellipsis;
+				lines: 1;
+			}
+		}
+
+		.list-item {
+			position: relative;
+			background-color: $uni-bg-color-grey;
+
+			.botton-menu-bar {
+				position: fixed;
+				bottom: 0;
+				height: 40px;
+				left: 0;
+				right: 0;
+				background-color: #fff;
+				border-top: 1px solid #ccc;
+				flex-direction: row;
+				justify-content: flex-end;
+				align-items: center;
+
+				.btn {
+					width: 100px;
+					height: 40px;
+					background-color: #fff;
+					color: $uni-color-paragraph;
+				}
+			}
+		}
+
+	}
+</style>

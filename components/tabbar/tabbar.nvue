@@ -1,0 +1,139 @@
+<template>
+	<view>
+		<view class="tab-bar-content">
+			<view class="menu-item"><text class="cc-font menu-text" @click="forward()">&#xe608;</text></view>
+			<view class="menu-item"><view class="bri" v-if="wvCount!=1"><text class="text">{{wvCount}}</text></view>  <text class="cc-font menu-text" @click="openBackground()">&#xe612;</text></view>
+			<view class="menu-item">
+				<text class="menu-text url-text" @click="openSearch()">{{ title | textOver }}</text>
+			</view>
+			<view class="menu-item"><text class="cc-font menu-text" @click="otHome()">&#xe617;</text></view>
+			<view class="menu-item"><text class="cc-font menu-text" @click="openMenu()">&#xe654;</text></view>
+		</view>
+	</view>
+</template>
+
+<script>
+	const app = getApp();
+	export default {
+		name: 'tabbar',
+		data() {
+			return {
+				title: '',
+				wvCount:1,
+			};
+		},
+		created() {
+			const webview = app.globalData.webview;
+			webview.on('loading', wv => {
+				this.getTitle(wv)
+			});
+			if (webview.activeWebview) {
+				
+				webview.activeWebview.addEventListener('titleUpdate', (e) => {
+					console.log('titleUpdate',e)
+					this.title = e.title
+				}, false);
+			} else {
+				webview.state.watch('activeWebview', () => {
+					
+					webview.activeWebview.addEventListener('titleUpdate', (e) => {
+						this.title = e.title
+					}, false);
+				})
+			}
+			webview.on('ACTIVE-WEBVIEW',()=>{
+				this.wvCount = webview.webviews.length;
+			})
+		},
+		filters: {
+			textOver(text = '') {
+				if (text.length > 5) {
+					return text.slice(0, 4) + '...';
+				}
+				return text || '新标签页';
+			}
+		},
+		methods: {
+			getTitle(webview) {
+				this.url = webview.getURL();
+				this.title = webview.getTitle() || '新标签页';
+			},
+			openMenu() {
+				// 网页设置信息
+				app.globalData.webview.Tools.sendStatisticsInfo()
+				const subNVue = uni.getSubNVueById('popup');
+				subNVue.show('', 0, function() {
+					uni.$emit('open-menu', 1);
+				});
+			},
+			openBackground() {
+				const subNVue = uni.getSubNVueById('popup');
+				subNVue.show('', 0, function() {
+					uni.$emit('open-menu', 2);
+				});
+			},
+			otHome() {
+				uni.$emit('to-home');
+			},
+			forward() {
+				uni.$emit('forward');
+			},
+			openSearch() {
+				uni.navigateTo({
+					url: '/pages/search/search?url=' + encodeURIComponent(this.url)
+				});
+			}
+		}
+	};
+</script>
+
+<style lang="scss">
+	.tab-bar-content {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 44px;
+		background-color: #eee;
+		border-top: 1px solid $uni-border-color;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 15px;
+
+		.menu-text {
+			font-size: 25px;
+			flex: 1;
+			color: #353535;
+			position: relative;
+			&:active {
+				background-color: rgba($color: #000000, $alpha: 0.3);
+				border-radius: 100px;
+			}
+			
+		}
+		.menu-item{
+			position: relative;
+		}
+		.bri{
+			
+			// position: relative;
+			position: absolute;
+			
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			align-items: center;
+			justify-content: center;
+			.text{
+				font-size: 15px;
+				text-align: center;
+			}
+		}
+		.url-text {
+			width: 100px;
+			font-size: 17px;
+		}
+	}
+</style>

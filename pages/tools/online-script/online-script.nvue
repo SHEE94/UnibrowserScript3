@@ -1,0 +1,49 @@
+<template>
+	<view>
+		<input type="text" placeholder="输入网络脚本地址" class="url-box"/>
+		<button class="save-btn" type="primary" @click="save">{{$t("bookmark.save")}}</button>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	const app = getApp()
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		data() {
+			return {
+
+			}
+		},
+		methods: {
+			$t: t,
+			save(){
+				
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.url-box{
+		margin: 20px;
+		background-color: #eeeeee;
+		padding-left: 15px;
+		height: 54px;
+	}
+.save-btn{
+	margin-left: 20px;
+	margin-right: 20px;
+	
+}
+</style>

@@ -1,0 +1,75 @@
+<template>
+	<view class="bookmark-edit-content">
+		<input type="text" :value="info.title" placeholder="title" class="input-text" v-model="info.title"/>
+		<input type="text" :value="info.url" placeholder="url" class="input-text" v-model="info.url"/>
+		<button type="default" @click="confirm">确认</button>
+	</view>
+</template>
+
+<script>
+/**
+ *@description: 添加书签
+ *@author: Xianxu
+ *@date: 2024-02-02
+ *@version: 3.0
+ *@Copyright: Xianxu
+ *@LastEditors: Xianxu
+ *@LastEditTime: 2024-02-02
+ */
+
+const app = getApp()
+export default {
+	data() {
+		return {
+			info:{
+				title:'',
+				url:''
+			}
+		};
+	},
+	onReady() {
+		
+		this.webview = app.globalData.webview;
+		let actionWeb = this.webview.checkedActiveWebview();
+		
+		this.info.title = actionWeb.getTitle();
+		
+		this.info.url = this.webview.getURL();
+	},
+	onLoad(options) {
+		this.id = options.id
+		if(this.id){
+			this.info = app.globalData.webview.Bookmark.get(this.id)
+			console.log(this.info)
+		}
+	},
+	methods:{
+		confirm(){
+			if(this.id){
+				 this.webview.Bookmark.update(this.info)
+				return;
+			}
+			this.webview.Bookmark.add({
+				url:this.info.url,
+				title:this.info.title,
+				isDir:false
+			})
+			uni.$emit('UPDATE-BOOKMARK')
+			uni.navigateBack()
+		}
+	}
+};
+</script>
+
+<style lang="scss">
+.bookmark-edit-content{
+	padding:15px;
+	.input-text{
+		padding: 0 15px;
+		margin-bottom: 10px;
+		height: 50px;
+		background-color: #eee;
+		color: $uni-text-color;
+	}
+}
+</style>

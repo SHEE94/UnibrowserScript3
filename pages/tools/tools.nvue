@@ -1,0 +1,93 @@
+<template>
+	<view class="content">
+		<view class="list" @tap="addScriptOnline">
+			<view class="left-info">
+				<view class="label">{{$t("tools.online.script")}}</view>
+			</view>
+			<view class="arr iconfont icon-right"></view>
+		</view>
+		<view class="list" @tap="addScriptLoacal">
+			<view class="left-info">
+				<view class="label">{{$t("tools.local.script")}}</view>
+			</view>
+			<view class="arr iconfont icon-right"></view>
+		</view>
+		<navigator class="list" url="script-edit-tool/script-edit-tool">
+			<view class="left-info">
+				<view class="label">{{$t("tools.edit.script")}}</view>
+			</view>
+			<view class="arr iconfont icon-right"></view>
+		</navigator>
+		<navigator url="../script-list/script-list" class="list">
+			<view class="left-info">
+				<view class="label">{{$t("tools.script.list")}}</view>
+			</view>
+			<view class="arr iconfont icon-right"></view>
+		</navigator>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	const app = getApp();
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		data() {
+			return {};
+		},
+		methods: {
+			$t:t,
+			addScriptOnline(e) {
+				uni.navigateTo({
+					url: './online-script/online-script'
+				})
+
+			},
+			addScriptLoacal(e) {
+				
+				uni.navigateTo({
+					url: '/pages/FM/FM'
+				})
+			}
+		}
+	};
+</script>
+
+<style lang="less">
+	.content {
+		padding: 15px 7px;
+		background-color: #eeeeee;
+		min-height: 100vh;
+		box-sizing: border-box;
+	}
+
+	.list {
+		display: flex;
+		margin-bottom: 10px;
+		align-items: center;
+		justify-content: space-between;
+		padding: 7px 10px;
+		background-color: #f7f7f7;
+
+		.left-info {
+			display: flex;
+			align-items: center;
+
+			.icon {
+				margin-right: 5px;
+				font-size: 15px;
+				margin-bottom: -2px;
+			}
+		}
+	}
+</style>

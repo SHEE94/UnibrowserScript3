@@ -1,4 +1,3 @@
-
 /**
  *@description: 设置类插件
  *@author: Xianxu
@@ -11,7 +10,9 @@
 
 import Bookmark from './bookmark.js'
 import History from './history.js'
-
+import {
+	EVENT_TYPE
+} from '../../tools/types.js'
 import SettingConfig from '../../config/settingConfig.js'
 
 const settingConfig = JSON.parse(JSON.stringify(SettingConfig))
@@ -33,7 +34,7 @@ class Setting {
 			settingConfig: this._settingConfig
 		})
 		this.full = false;
-		this.wvSettingEvent()
+		this.wvSettingEvent();
 
 		if (this._settingConfig.defaultHome) {
 			this.wv.homePage = this._settingConfig.defaultHome
@@ -41,36 +42,83 @@ class Setting {
 
 		this.userAgent = ua;
 
-		this.listenerEvent()
+		this.listenerEvent();
+
+		uni.onKeyboardHeightChange((res) => {
+			let height = res.height;
+			if (height > 0) {
+				this.wv.setStyle({
+					height: '100%',
+					top: this.full ? 0 : uni.getSystemInfoSync().statusBarHeight
+				})
+			} else {
+				this.wv.setStyle({
+					height: this.full ? '100%' : this.wv.height,
+					top: this.full ? 0 : uni.getSystemInfoSync().statusBarHeight,
+				})
+			}
+		})
 	}
 	alertCount = true;
-
-
 
 	listenerEvent() {
 		const loading = () => {
 			_self.alertCount = true
 		}
-		const listen = () => {
-			this.wv.activeWebview.overrideUrlLoading({
-				match: '^(http|file|ftp|blob|ws|wss).*',
-				mode: 'allow'
-			}, (e) => {
-				let url = e.url;
-				if (!this.alertCount) return;
-				this.alertCount = false;
-				this.wv.emit('overrideUrlLoading', url)
-			})
 
+		const listen = () => {
 			this.wv.activeWebview.addEventListener('loading', loading)
+			let activeWebview = this.wv.activeWebview;
+
+			const overrideUrlLoading = (f) => {
+				this.wv.activeWebview.overrideUrlLoading({
+					match: '^(http|file|ftp|blob|ws|wss).*',
+					mode: 'allow'
+				}, (e) => {
+					if (!this.alertCount) return;
+					this.alertCount = false;
+					let overrurl = e.url;
+					if (f) {
+						this.wv.emit('overrideUrlLoading', overrurl);
+					}
+
+				})
+			}
+			let loadingOverri = true;
+			if (this.settingConfig.otherWebsite) {
+				activeWebview.overrideUrlLoading({}, (e) => {
+					if (!loadingOverri) return;
+					loadingOverri = false;
+					let url = e.url;
+
+					let currentUrl = activeWebview.getURL()
+					if (currentUrl.indexOf(url) > -1) {
+						overrideUrlLoading()
+						this.wv.loadURL(url)
+					} else {
+						uni.showModal({
+							title: '提示',
+							content: '是否跳转第三方网址？',
+							success: (res) => {
+								if (res.confirm) {
+									overrideUrlLoading(true)
+									this.wv.loadURL(url)
+								}
+							}
+						})
+					}
+				})
+			} else {
+				overrideUrlLoading(true)
+			}
 		}
 
 		if (this.wv.activeWebview) {
 			listen()
 		} else {
 			this.wv.state.watch('activeWebview', () => {
-				this.wv.activeWebview.removeEventListener('loading', loading)
-				listen()
+				this.wv.activeWebview.removeEventListener('loading', loading);
+				listen();
 			})
 		}
 
@@ -80,7 +128,7 @@ class Setting {
 				this.wv.webviews.forEach(wvItem => {
 					wvItem.pause()
 				})
-				this.wv.on('ACTIVE-WEBVIEW', wv => {
+				this.wv.on(EVENT_TYPE['ACTIVE-WEBVIEW'], wv => {
 					wv.restore()
 				})
 			} else {
@@ -92,13 +140,11 @@ class Setting {
 
 
 		this.wv.state.getData('settingConfig', (config) => {
-
 			dormancy()
 		})
 
 		if (this.settingConfig.lastPage) {
 			this.wv.state.getData('activeWebview', (activeWebview) => {
-				
 				this.saveLastPageInfo(activeWebview)
 			})
 		}
@@ -120,8 +166,8 @@ class Setting {
 				data: lastWebviews
 			})
 		}
-		this.wv.on('CLOSE-WINDOW', setList)
-		this.wv.on('CLOSE-WINDOW-ALL', () => {
+		this.wv.on(EVENT_TYPE['CLOSE-WINDOW'], setList)
+		this.wv.on(EVENT_TYPE['CLOSE-WINDOW-ALL'], () => {
 			uni.removeStorage({
 				key: 'lastWebviews'
 			})
@@ -197,6 +243,7 @@ class Setting {
 			full: val
 		})
 		if (val) {
+			plus.navigator.setFullscreen(true);
 			this.wv.activeWebview.setStyle({
 				height: '100%',
 				top: 0,
@@ -225,6 +272,11 @@ class Setting {
 
 			this.wv.activeWebview.append(view)
 		} else {
+			plus.navigator.setFullscreen(false);
+			let exit = plus.nativeObj.View.getViewById('exit');
+			if (exit) {
+				exit.close()
+			}
 
 			if (this.wv.height && this.wv.activeWebview) {
 				this.wv.activeWebview.setStyle({
@@ -242,13 +294,13 @@ class Setting {
 
 	wvSettingEvent() {
 		let webviews = this.wv.webviews;
-		this.wv.on('CREATE-WEBVIEW', (wv) => {
+		this.wv.on(EVENT_TYPE['CREATE-WEBVIEW'], (wv) => {
 			if (this._settingConfig.pullLoad) {
 				this.pullLoad(wv)
 			}
 		})
 
-		this.wv.on('WEB-MESSAGE', (data) => {
+		this.wv.on(EVENT_TYPE['WEB-MESSAGE'], (data) => {
 			this.webdataSett(data)
 		})
 

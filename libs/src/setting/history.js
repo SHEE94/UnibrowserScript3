@@ -2,12 +2,13 @@
 import {
 	uuid
 } from '../../tools/tools.js'
+import { EVENT_TYPE } from '../../tools/types.js'
 let historyList = uni.getStorageSync('history') || []
 
 export default class History {
 	constructor(wv){
 		this.wv = wv;
-		wv.on('CREATE-WEBVIEW',(w)=>{
+		wv.on(EVENT_TYPE['CREATE-WEBVIEW'],(w)=>{
 			w.addEventListener('loaded',()=>{
 				this.add({
 					url:this.wv.getURL(),

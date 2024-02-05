@@ -22,9 +22,10 @@
 		I18n
 	} from '@dcloudio/uni-i18n'
 	import messages from '@/locale/index'
-	
+
 	const {
-		t,setLocale
+		t,
+		setLocale
 	} = initVueI18n(messages)
 	const app = getApp();
 	const settingConfig = app.globalData.webview.Setting.settingConfig;
@@ -36,8 +37,8 @@
 				current: 0,
 				showRes: [],
 				allRes: [],
-				devList:[],
-				
+				devList: [],
+
 				initResArr: {
 					js: [],
 					css: [],
@@ -57,7 +58,7 @@
 			this.settingConfig = this.webview.Setting.settingConfig || {};
 		},
 		methods: {
-			$t:t,
+			$t: t,
 			bindChange(e) {
 				this.current = e.detail.value;
 				let _type = this.range[this.current];
@@ -71,7 +72,7 @@
 
 				let index = e.currentTarget.dataset.index;
 				if (this.current == 5) {
-
+					// #ifdef APP
 					if (this.settingConfig.videoPLay) {
 						var Intent = plus.android.importClass("android.content.Intent");
 						var Uri = plus.android.importClass("android.net.Uri");
@@ -81,9 +82,10 @@
 						intent.setDataAndType(uri, "video/*");
 						main.startActivity(intent);
 					}
-					// uni.navigateTo({
-					// 	url: '/pages/videoplayer/videoplayer?src=' + encodeURIComponent(this.showRes[index].url)
-					// })
+					// #endif
+					if (uni.getSystemInfoSync().osName == 'ios') {
+						plus.runtime.openURL(this.showRes[index].url)
+					}
 					return;
 				}
 				uni.navigateTo({
@@ -105,9 +107,10 @@
 			longchange(e) {
 				let index = e.currentTarget.dataset.index;
 				uni.showActionSheet({
-					itemList: [this.$t('weblog.itemList.0'), this.$t('weblog.itemList.1'),this.$t('weblog.itemList.2'),this.$t('weblog.itemList.3'), this.$t('weblog.itemList.4')],
+					itemList: [this.$t('weblog.itemList.0'), this.$t('weblog.itemList.1'), this.$t(
+						'weblog.itemList.2'), this.$t('weblog.itemList.3'), this.$t('weblog.itemList.4')],
 					success: res => {
-						let resRequest =[]
+						let resRequest = []
 						switch (res.tapIndex) {
 							case 0:
 								resRequest = uni.getStorageSync('overrideResourceRequest') || [];
@@ -131,20 +134,23 @@
 							case 4:
 								const Dlan = uni.requireNativePlugin('JX-Dlna');
 								Dlan.search(result => {
-									
-									if(result.type === 'add'){
-										this.devList.push({'id': result.id, 'name': result.name})
-									}else {
+
+									if (result.type === 'add') {
+										this.devList.push({
+											'id': result.id,
+											'name': result.name
+										})
+									} else {
 										this.devList = this.devList.filter(x => x.id != result.id)
 									}
 									// let itemList = []
-									
+
 									// itemList.push()
 									// uni.showActionSheet({
 									// 	itemList:[]
 									// })
 								})
-							break;
+								break;
 						}
 
 
@@ -153,8 +159,29 @@
 			},
 			createDownload(url) {
 				uni.showLoading({
-					title:this.$t('weblog.tips.1')
+					title: this.$t('weblog.tips.1')
 				})
+				// let that = this;
+				// uni.downloadFile({
+				// 	url,
+				// 	success(res) {
+				// 		let tempFilePath = res.tempFilePath
+				// 		uni.saveFile({
+				// 			tempFilePath: tempFilePath,
+				// 			success(e) {
+				// 				uni.hideLoading();
+				// 				let savedFilePath = e.savedFilePath;
+				// 				uni.showModal({
+				// 					content: that.$t('weblog.tips.2') + savedFilePath
+				// 				});
+				// 			},
+				// 			complete() {
+				// 				uni.hideLoading();
+				// 			}
+				// 		})
+				// 	}
+				// })
+
 				var dtask = plus.downloader.createDownload(url, {
 					filename: '_downloads/'
 				}, function(d, status) {
@@ -162,7 +189,7 @@
 					uni.hideLoading()
 					if (status == 200) {
 						uni.showModal({
-							content:this.$t('weblog.tips.2') + d.filename
+							content: this.$t('weblog.tips.2') + d.filename
 						});
 					} else {
 						uni.showModal({
@@ -212,13 +239,13 @@
 		background-color: #ffffff;
 		left: 15px;
 		right: 15px;
-		padding:0 15px;
+		padding: 0 15px;
 		border: 1px solid #ECAD9E;
 		text-align: center;
 	}
 
 	.list {
-		
+
 		border-bottom: 1px solid #ECAD9E;
 		padding: 7px 0;
 		overflow: hidden;
@@ -231,6 +258,6 @@
 		display: flex;
 		justify-content: flex-end;
 		box-sizing: border-box;
-		
+
 	}
 </style>

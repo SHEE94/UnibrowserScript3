@@ -19,13 +19,12 @@
 		// #ifdef APP
 
 		const data = intent.getDataString()
-		console.log(intent.getScheme())
 		if (data) {
 			arg = data
 		}
 		// #endif
 
-
+		console.log(arg)
 		if (typeof arg == 'string') {
 			try {
 				arg = JSON.parse(arg);
@@ -91,7 +90,7 @@
 			const domModule = uni.requireNativePlugin('dom');
 			domModule.addRule('fontFace', {
 				fontFamily: 'ccfffasd',
-				src: "url('http://at.alicdn.com/t/font_2480200_eai6g74x04.ttf?t=1644907422564')"
+				src: "url('http://at.alicdn.com/t/c/font_2480200_22pc9fljf07.ttf?t=1707113971896')"
 			});
 
 		},

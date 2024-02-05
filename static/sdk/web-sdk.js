@@ -282,7 +282,16 @@ try {
 			};
 			history.pushState = _historyWrap('pushState');
 			history.replaceState = _historyWrap('replaceState')
-
+			
+			const listenerSate = function(e){
+				webSDK.sendMessage({
+					action:'historyState',
+					data:JSON.stringify(e)
+				})
+			}
+			
+			window.addEventListener('pushState',listenerSate)
+			window.addEventListener('replaceState',listenerSate)
 
 			// 打开系统播放器
 			/**
@@ -480,6 +489,7 @@ try {
 
 
 				let hostname = getHostname();
+				
 				let Alinks = document.querySelectorAll('a')
 
 

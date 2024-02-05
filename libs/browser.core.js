@@ -5,10 +5,14 @@
  *@version: 3.0
  *@Copyright: Xianxu
  *@LastEditors: Xianxu
- *@LastEditTime: 2024-02-02
+ *@LastEditTime: 2024-02-04
  */
 
 const system = uni.getSystemInfoSync();
+import {
+	EVENT_TYPE,
+	ACTION_TYPR
+} from './tools/types.js'
 import {
 	uuid
 } from './tools/tools.js'
@@ -28,6 +32,9 @@ const proc = new Proc()
 let _webviews = [];
 
 let _self = null;
+
+
+
 class WebView extends EventEmitter {
 
 	get webviews() {
@@ -85,18 +92,30 @@ class WebView extends EventEmitter {
 				const info = data.arg;
 				let jsonback = info.jsonback || {};
 				if (info.from == 'webdata') {
-					this.emit('WEB-MESSAGE', jsonback)
+					this.emit(EVENT_TYPE['WEB-MESSAGE'], jsonback)
+					if (jsonback.action == ACTION_TYPR.historyState) {
+						this.emit(EVENT_TYPE['HISTORY-STATE'], jsonback.data)
+					}
 				} else if (info.from == 'web') {
-					this.emit('POST-MESSAGE', jsonback)
-					this.emit('WEB-ACTION', jsonback)
+					this.emit(EVENT_TYPE['POST-MESSAGE'], jsonback)
+					this.emit(EVENT_TYPE['WEB-ACTION'], jsonback)
 				}
 			}
 		});
-
-
+		
+		// uni.onKeyboardHeightChange((res)=>{
+		// 	let height = res.height;
+		// 	console.log(height)
+		// 	if(height>0){
+		// 		this.full = true;
+		// 	}else{
+		// 		this.full = false;
+		// 	}
+		// })
+		
 	}
-	
-	setStyle(style){
+
+	setStyle(style) {
 		this.checkedActiveWebview().setStyle(style)
 	}
 
@@ -139,10 +158,11 @@ class WebView extends EventEmitter {
 			let currentWebview = this._self.$scope
 				.$getAppWebview();
 			currentWebview.append(wv);
+			wv.allRes = []
 			// this.setActive(wv.id)
 			this.addListener(wv)
 			this.webviews = wv;
-			this.emit('CREATE-WEBVIEW', wv)
+			this.emit(EVENT_TYPE['CREATE-WEBVIEW'], wv)
 			wv.hide()
 			res(wv);
 		})
@@ -175,7 +195,7 @@ class WebView extends EventEmitter {
 				_webviews.splice(index, 1)
 			}
 		})
-		this.emit('CLOSE-WINDOW')
+		this.emit(EVENT_TYPE['CLOSE-WINDOW'])
 	}
 
 	/**
@@ -188,7 +208,7 @@ class WebView extends EventEmitter {
 			_webviews.splice(index, 1)
 		})
 		_webviews = []
-		this.emit('CLOSE-WINDOW-ALL')
+		this.emit(EVENT_TYPE['CLOSE-WINDOW-ALL'])
 	}
 
 	/**
@@ -314,14 +334,64 @@ class WebView extends EventEmitter {
 				})
 			}, 1000)
 		})
+		wv.addEventListener('rendering',()=>{
+			
+			wv.allRes = [];
+		})
 
 		wv.addEventListener('loading', () => {
-			this.allRes = [];
-			this.emit('loading', wv)
+			
+			wv.allRes = [];
+			this.emit(EVENT_TYPE['loading'], wv)
 		})
 
 		wv.listenResourceLoading('', evt => {
-			this.allRes.unshift(evt.url);
+			wv.allRes.unshift(evt.url);
+			this.emit(EVENT_TYPE['WEBVIEW-RESOURCE'], wv.allRes)
+		})
+
+
+	}
+
+	/**
+	 * 获取cookie
+	 * @param {String} name
+	 * @param {String} value
+	 * @param {Number} days
+	 * @param {String} path
+	 * @param {String} id
+	 */
+	setCookie(name, value, days = 7, path = '/', id) {
+
+		const setCookie = (name, value, days = 7, path = '/') => {
+			const expires = new Date(Date.now() + days * 864e5).toUTCString()
+			return name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=' + path
+		}
+		let webview = this.checkedActiveWebview();
+		if (id) {
+			webview = this.webviews.find(wv => wv.id === id)
+		}
+		webview.evalJS(`
+			document.cookie = ${setCookie(name, value, days, path)}
+		`)
+	}
+
+	/**
+	 * 设置cookie
+	 * @param {Object} url 获取cookie的地址，默认当前网页
+	 * @param {Object} id 获取指定webview窗口
+	 */
+	getCookie(url, id) {
+		return new Promise((resolve) => {
+			let webview = this.checkedActiveWebview();
+			if (id) {
+				webview = this.webviews.find(wv => wv.id === id)
+			}
+			if (!url) {
+				url = webview.getURL()
+			}
+			let cookie = plus.navigator.getCookie(url);
+			resolve(cookie)
 		})
 	}
 
@@ -330,40 +400,41 @@ class WebView extends EventEmitter {
 	 */
 	getRES() {
 		let Resource = JSON.parse(JSON.stringify(this.initResArr));
-		for (let i = 0, len = this.allRes.length; i < len; i++) {
-			if (/.*\.(jpg|png|jpeg|bmp|ico|gif|GIF|webp)\b/.test(this.allRes[i])) {
+		let actionWebview = this.checkedActiveWebview();
+		for (let i = 0, len = actionWebview.allRes.length; i < len; i++) {
+			if (/.*\.(jpg|png|jpeg|bmp|ico|gif|GIF|webp)\b/.test(actionWebview.allRes[i])) {
 				let obj = {
 					type: 'img',
-					url: this.allRes[i]
+					url: actionWebview.allRes[i]
 				};
 				Resource.img.unshift(obj);
 			}
-			if (/.*\.(js)\b/.test(this.allRes[i])) {
+			if (/.*\.(js)\b/.test(actionWebview.allRes[i])) {
 				let obj = {
 					type: 'js',
-					url: this.allRes[i]
+					url: actionWebview.allRes[i]
 				};
 				Resource.js.unshift(obj);
 			}
-			if (/.*\.(css)\b/.test(this.allRes[i])) {
+			if (/.*\.(css)\b/.test(actionWebview.allRes[i])) {
 				let obj = {
 					type: 'css',
-					url: this.allRes[i]
+					url: actionWebview.allRes[i]
 				};
 				Resource.css.unshift(obj);
 			}
-			if (/.*\.(html)\b/.test(this.allRes[i])) {
+			if (/.*\.(html)\b/.test(actionWebview.allRes[i])) {
 				let obj = {
 					type: 'iframe',
-					url: this.allRes[i]
+					url: actionWebview.allRes[i]
 				};
 				Resource.iframe.unshift(obj);
 			}
 
-			if (/.*\.(mp4|m4v|m3u8|webm)\b/.test(this.allRes[i])) {
+			if (/.*\.(mp4|m4v|m3u8|webm|ts|TS)\b/.test(actionWebview.allRes[i])) {
 				let obj = {
 					type: 'video',
-					url: this.allRes[i]
+					url: actionWebview.allRes[i]
 				};
 				Resource.video.unshift(obj);
 			}
@@ -403,7 +474,7 @@ class WebView extends EventEmitter {
 		_webviews.forEach(webview => {
 			if (webview.id == id) {
 				// 活动的webivew更改通知
-				this.emit('ACTIVE-WEBVIEW', webview)
+				this.emit(EVENT_TYPE['ACTIVE-WEBVIEW'], webview)
 				this.activeWebview = webview
 				this.state.setData({
 					activeWebview: webview

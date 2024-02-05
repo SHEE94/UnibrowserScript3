@@ -29,6 +29,7 @@
 		},
 		onLoad(options) {
 			let url = decodeURIComponent(options.url)
+			
 			if (url.indexOf('file') == -1) {
 				this.searchVal = url;
 			}

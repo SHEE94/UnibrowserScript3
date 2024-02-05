@@ -172,9 +172,7 @@
 		transform: translateX(50%);
 		opacity: 0;
 		background-color: rgba($color: #000000, $alpha: 0.8);
-
 		padding: $uni-spacing-row-lg;
-
 		.scroll {
 			position: absolute;
 			top: $uni-spacing-row-lg + 10px;
@@ -210,7 +208,6 @@
 				}
 			}
 			
-
 			.img {
 				width: 150px;
 				height: 180px;
@@ -243,6 +240,9 @@
 				text-align: center;
 				flex: 1;
 				font-size: 12px;
+				// background-color: #eee;
+				height: 44px;
+				line-height: 44px;
 			}
 		}
 	}

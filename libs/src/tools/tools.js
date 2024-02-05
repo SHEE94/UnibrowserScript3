@@ -8,6 +8,10 @@
  *@LastEditTime: 2024-02-02
  */
 
+import {
+	EVENT_TYPE,
+	ACTION_TYPR
+} from '../../tools/types.js'
 let $statistics = {}
 class Tools {
 	constructor(wv) {
@@ -66,20 +70,25 @@ class Tools {
 			}
 			return decipher;
 		}
+
+
 	}
 
+
+	videoUrls = []
 	/**
 	 * 监听浏览器事件
 	 */
 	eventListener() {
-		this.wv.on('WEB-MESSAGE', (json) => {
-
-			if (json.action === 'statistics') {
+		this.wv.on(EVENT_TYPE['WEB-MESSAGE'], (json) => {
+			if (json.action === ACTION_TYPR.statistics) {
 				this.statistics = json.data;
-
 			}
 		})
+
 	}
+
+
 	/**
 	 *给网页发送统计信息
 	 */

@@ -46,6 +46,12 @@
 				</view>
 			</uni-grid-item>
 			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.res)">
+					<text class="cc-font icon">&#xe715;</text>
+					<text class="itme-text">{{$t('setting.web-log')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
 				<view class="item" @click.stop="change(menuType.more)">
 					<text class="cc-font icon">&#xe63f;</text>
 					<text class="itme-text">{{$t('main.tips.12')}}</text>
@@ -63,16 +69,17 @@
 		I18n
 	} from '@dcloudio/uni-i18n'
 	import messages from '@/locale/index'
-	
+
 	const {
-		t,setLocale
+		t,
+		setLocale
 	} = initVueI18n(messages)
 	const animation = uni.requireNativePlugin('animation');
 	import uniGrid from '../uni-grid/components/uni-grid/uni-grid.vue';
 	import uniGridItem from '../uni-grid/components/uni-grid-item/uni-grid-item.vue';
 	const app = getApp();
 	let _self = null;
-	
+
 	export default {
 		components: {
 			uniGrid,
@@ -91,22 +98,23 @@
 					tools: 6, //工具
 					extension: 7, //扩展
 					more: 8, //更多设置
+					res: 9
 				}
 			};
 		},
-		created(){
+		created() {
 			const settingConfig = app.globalData.webview.Setting.settingConfig;
 			setLocale(settingConfig.language[settingConfig.langCurrnt].code);
 			_self = this;
 		},
 		mounted() {
-			
+
 			this.read = app.globalData.webview.Setting.read
 			this.init();
 		},
 
 		methods: {
-			$t:t,
+			$t: t,
 			init() {
 				this.menuEl = this.$refs.menu;
 				animation.transition(this.menuEl, {
@@ -125,7 +133,7 @@
 				app.globalData.closePopup();
 			},
 			change(num) {
-				
+
 				_self.closeMask();
 				let webview = app.globalData.webview;
 				switch (num) {
@@ -151,7 +159,7 @@
 						break;
 					case this.menuType.full:
 						webview.Setting.full = !webview.Setting.full
-					break;
+						break;
 					case this.menuType.tools:
 
 						// 工具
@@ -164,8 +172,13 @@
 							url: '/pages/setting/setting'
 						})
 						break;
+					case this.menuType.res:
+						uni.navigateTo({
+							url: '/pages/web-log/web-log'
+						})
+						break;
 				}
-				
+
 			}
 		}
 	};
@@ -191,7 +204,7 @@
 
 			&:active {
 				background-color: rgba($color: #000000, $alpha: 0.3);
-				border-radius: 100%;
+				border-radius: 10px;
 			}
 
 			.icon {

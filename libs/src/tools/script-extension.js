@@ -30,6 +30,7 @@ class ScriptExtension {
 	 * @property {String} description 描述
 	 * @property {Boolean} enable 是否启用
 	 * @property {String} scriptPath 脚本地址
+	 * @property {String} codeText 脚本信息
 	 * @property {execution}  execution 执行时机
 	 */
 	/**
@@ -38,6 +39,8 @@ class ScriptExtension {
 	add(scriptObj) {
 		
 	}
+	
+	scriptList = []
 	
 	async addScriptOnline(obj){
 		let res = await this.loadNetFile(obj.url)

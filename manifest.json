@@ -1,9 +1,9 @@
 {
-    "name" : "Script Brower 3",
+    "name" : "Script Browser 3",
     "appid" : "",
     "description" : "",
-    "versionName" : "3.0.1",
-    "versionCode" : 301,
+    "versionName" : "3.0.2",
+    "versionCode" : 302,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {

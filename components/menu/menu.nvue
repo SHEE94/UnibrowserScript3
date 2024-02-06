@@ -1,5 +1,5 @@
 <template>
-	<view class="menu-content" ref="menu" elevation="15px">
+	<view class="menu-content" ref="menu" elevation="15px" blurEffect="light">
 		<uni-grid :column="5" :showBorder="false" :square="false">
 			<uni-grid-item>
 				<view class="item" @click.stop="change(menuType.collect)">
@@ -173,9 +173,13 @@
 						})
 						break;
 					case this.menuType.res:
-						uni.navigateTo({
-							url: '/pages/web-log/web-log'
-						})
+						const subNVue = uni.getSubNVueById('popup');
+						subNVue.show('', 0, function() {
+							uni.$emit('open-menu', 4);
+						});
+						// uni.navigateTo({
+						// 	url: '/pages/web-log/web-log'
+						// })
 						break;
 				}
 
@@ -194,7 +198,7 @@
 		left: $uni-spacing-row-lg;
 		right: $uni-spacing-row-lg;
 		// height: 230px;
-		background-color: #eee;
+		background-color: rgba($color: #eeeeee, $alpha: 0.95);
 		padding: $uni-spacing-row-lg;
 
 		.item {

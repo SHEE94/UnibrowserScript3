@@ -3,10 +3,13 @@
 		<view class="tab-bar-content">
 			<view class="menu-item"><text class="cc-font menu-text" @click="forward()">&#xe608;</text></view>
 			<view class="menu-item">
-				<view class="bri cc-font menu-text" @click="openBackground()"><text class="text">{{wvCount}}</text></view> 
+				<view class="menu-text url-content">
+					<view class="bri cc-font" @click="openBackground()"><text class="text">{{wvCount}}</text></view>
+				</view>
+
 				<!-- <text class="cc-font menu-text" @click="openBackground()">&#xe612;</text> -->
 			</view>
-			<view class="menu-item">
+			<view class="menu-item title-content">
 				<text class="menu-text url-text" @click="openSearch()">{{ title | textOver }}</text>
 			</view>
 			<view class="menu-item"><text class="cc-font menu-text" @click="otHome()">&#xe617;</text></view>
@@ -16,7 +19,9 @@
 </template>
 
 <script>
-	import { EVENT_TYPE } from '@/libs/tools/types.js'
+	import {
+		EVENT_TYPE
+	} from '@/libs/tools/types.js'
 	const app = getApp();
 	export default {
 		name: 'tabbar',
@@ -110,10 +115,14 @@
 			flex: 1;
 			color: #353535;
 			position: relative;
+			width: 60px;
+			height: 40px;
+			line-height: 40px;
+			text-align: center;
 
 			&:active {
-				background-color: rgba($color: #000000, $alpha: 0.3);
-				
+				background-color: rgba($color: #cccccc, $alpha: 0.1);
+
 			}
 
 
@@ -121,22 +130,24 @@
 
 		.menu-item {
 			position: relative;
+
 		}
 
-		.bri {
+		.url-content {
+			justify-content: center;
+			align-items: center;
+			// height: 30px;
+		}
 
-			// position: relative;
-			// position: absolute;
+		
+		.bri {
 			border: 1px solid #353535;
-			// left: 0;
-			// right: 0;
-			// top: 0;
-			// bottom: 0;
 			width: 25px;
 			height: 25px;
 			align-items: center;
 			justify-content: center;
 			border-radius: 10px 0px 10px 0px;
+
 			.text {
 				font-size: 15px;
 				text-align: center;
@@ -146,6 +157,12 @@
 		.url-text {
 			width: 100px;
 			font-size: 17px;
+			line-height: 30px;
+		}
+		.title-content {
+			background-color: #dddddd;
+			height: 30px;
+			border-radius: 50px;
 		}
 	}
 </style>

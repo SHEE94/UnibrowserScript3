@@ -65,7 +65,7 @@ class Setting {
 		const loading = () => {
 			_self.alertCount = true
 		}
-
+		let blacklist = []
 		const listen = () => {
 			this.wv.activeWebview.addEventListener('loading', loading)
 			let activeWebview = this.wv.activeWebview;
@@ -86,26 +86,57 @@ class Setting {
 			}
 			let loadingOverri = true;
 			if (this.settingConfig.otherWebsite) {
+				const getStrOrigin = (val) => {
+					let text = '';
+					if (val && typeof val === 'string') {
+						const reg = /((https|http|ftp|file):\/\/)([A-Za-z0-9\-.]+)(:[0-9]+){0,1}/g;
+						const arr = val.match(reg);
+						if (arr && arr.length > 0) {
+							text = arr[0];
+						}
+					}
+					return text;
+				}
 				activeWebview.overrideUrlLoading({}, (e) => {
 					if (!loadingOverri) return;
 					loadingOverri = false;
 					let url = e.url;
 
 					let currentUrl = activeWebview.getURL()
-					if (currentUrl.indexOf(url) > -1) {
+					let $URL = getStrOrigin(url)
+					
+					if (currentUrl.indexOf($URL) > -1) {
 						overrideUrlLoading()
 						this.wv.loadURL(url)
 					} else {
+						for(let i of blacklist){
+							if(url.indexOf(i)>-1){
+								return;
+							}
+						}
 						uni.showModal({
 							title: '提示',
-							content: '是否跳转第三方网址？',
+							content: '是否跳转第三方网址？地址：' + url,
 							success: (res) => {
 								if (res.confirm) {
 									overrideUrlLoading(true)
 									this.wv.loadURL(url)
+								}else{
+									uni.showActionSheet({
+										itemList:['加入黑名单'],
+										success: (res) => {
+											if(res.tapIndex == 0){
+												blacklist.push(getStrOrigin(url))
+											}
+										}
+									})
 								}
 							}
 						})
+						
+						
+						
+						
 					}
 				})
 			} else {

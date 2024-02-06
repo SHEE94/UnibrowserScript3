@@ -13,8 +13,6 @@
 	// #endif
 
 	const webview = new WebView()
-
-
 	const getIntentData = (arg) => {
 		// #ifdef APP
 
@@ -24,7 +22,6 @@
 		}
 		// #endif
 
-		console.log(arg)
 		if (typeof arg == 'string') {
 			try {
 				arg = JSON.parse(arg);

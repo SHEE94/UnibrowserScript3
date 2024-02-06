@@ -73,7 +73,7 @@
 				let index = e.currentTarget.dataset.index;
 				if (this.current == 5) {
 					// #ifdef APP
-					if (this.settingConfig.videoPLay) {
+					if (this.settingConfig.videoPLay || uni.getSystemInfoSync().osName == 'android') {
 						var Intent = plus.android.importClass("android.content.Intent");
 						var Uri = plus.android.importClass("android.net.Uri");
 						var main = plus.android.runtimeMainActivity();

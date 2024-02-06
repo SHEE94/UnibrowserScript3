@@ -518,7 +518,7 @@ try {
 
 
 			// ++++++++++++++++++++++++++++++++++
-			otherWebsite()
+			// otherWebsite()
 
 			window.addEventListener('DOMContentLoaded', function() {
 
@@ -528,7 +528,7 @@ try {
 				const observeMutationSupport = !!MutationObserver;
 				if (observeMutationSupport) {
 					let observer = new MutationObserver(function(records) {
-						otherWebsite()
+						// otherWebsite()
 					});
 					let body = document.querySelector('body')
 					observer.observe(body, {

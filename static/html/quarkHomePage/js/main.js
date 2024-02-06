@@ -132,26 +132,32 @@ require(['jquery'], function ($) {
 			movePos,
 			endPos;
 		for (var i = $this.length - 1; i > -1; i--) {
-			$this[i].addEventListener("touchstart", function (e) {
-				var touch = e.targetTouches[0];
-				startPos = { x: touch.pageX, y: touch.pageY };
-				timeout = setTimeout(function () {
-					if ($this.attr("disabled") === undefined) {
-						fn();
-					}
-				}, 700);
-			}, { passive: true });
-			$this[i].addEventListener("touchmove", function (e) {
-				var touch = e.targetTouches[0];
-				movePos = { x: touch.pageX - startPos.x, y: touch.pageY - startPos.y };
-				(Math.abs(movePos.x) > 10 || Math.abs(movePos.y) > 10) && clearTimeout(timeout);
-			}, { passive: true });
-			$this[i].addEventListener("touchend", function () {
-				clearTimeout(timeout);
-			}, { passive: true });
-			$this[i].addEventListener('touchcancel',function(){
-				clearTimeout(timeout);
-			}, { passive: true })
+			$this[i].addEventListener('contextmenu',function(e){
+				e.stopPropagation();
+				e.preventDefault();
+				fn();
+			})
+			
+			// $this[i].addEventListener("touchstart", function (e) {
+			// 	var touch = e.targetTouches[0];
+			// 	startPos = { x: touch.pageX, y: touch.pageY };
+			// 	timeout = setTimeout(function () {
+			// 		if ($this.attr("disabled") === undefined) {
+			// 			fn();
+			// 		}
+			// 	}, 700);
+			// }, { passive: true });
+			// $this[i].addEventListener("touchmove", function (e) {
+			// 	var touch = e.targetTouches[0];
+			// 	movePos = { x: touch.pageX - startPos.x, y: touch.pageY - startPos.y };
+			// 	(Math.abs(movePos.x) > 10 || Math.abs(movePos.y) > 10) && clearTimeout(timeout);
+			// }, { passive: true });
+			// $this[i].addEventListener("touchend", function () {
+			// 	clearTimeout(timeout);
+			// }, { passive: true });
+			// $this[i].addEventListener('touchcancel',function(){
+			// 	clearTimeout(timeout);
+			// }, { passive: true })
 		}
 	};
 
@@ -537,42 +543,42 @@ require(['jquery'], function ($) {
 		var ornamentInput = $(".ornament-input-group");
 		var top = ornamentInput.offset().top;
 		var left = ornamentInput.offset().left;
-		// var anitInput = ornamentInput.clone();
-		// anitInput.attr('class', 'anitInput').css({
-		// 	'position': 'absolute',
-		// 	'top': top,
-		// 	'left': left,
-		// 	'width': ornamentInput.outerWidth(),
-		// 	'height': ornamentInput.outerHeight(),
-		// 	'pointer-events': 'none'
-		// })
-		// anitInput.on('transitionend', function (evt) {
-		// 	if (evt.target !== this) {
-		// 		return;
-		// 	}
-		// 	anitInput.unbind('transitionend');
-		// 	$(".input-bg").css("border-color", "var(--dark)");
-		// 	anitInput.css("opacity", "0");
-		// });
-		// $('body').append(anitInput);
-		// ornamentInput.css('opacity', 0);
-		// if ($(window).data('anitInputFn')) {
-		// 	$(window).unbind('resize', $(window).data('anitInputFn'));
-		// }
-		// var anitInputFn = function () {
-		// 	var inputBg = $('.input-bg');
-		// 	var scaleX = inputBg.outerWidth() / ornamentInput.outerWidth();
-		// 	var scaleY = inputBg.outerHeight() / ornamentInput.outerHeight();
-		// 	var translateX = inputBg.offset().left - left - (ornamentInput.outerWidth() - inputBg.outerWidth()) / 2;
-		// 	var translateY = inputBg.offset().top - top - (ornamentInput.outerHeight() - inputBg.outerHeight()) / 2;
-		// 	anitInput.css({
-		// 		'transform': 'translateX(' + translateX + 'px) translateY(' + translateY + 'px) scale(' + scaleX + ',' + scaleY + ') translate3d(0,0,0)',
-		// 		'transition': '.3s',
-		// 		'border-color': 'var(--dark)'
-		// 	});
-		// }
-		// $(window).data('anitInputFn', anitInputFn);
-		// $(window).bind('resize', anitInputFn);
+		var anitInput = ornamentInput.clone();
+		anitInput.attr('class', 'anitInput').css({
+			'position': 'absolute',
+			'top': top,
+			'left': left,
+			'width': ornamentInput.outerWidth(),
+			'height': ornamentInput.outerHeight(),
+			'pointer-events': 'none'
+		})
+		anitInput.on('transitionend', function (evt) {
+			if (evt.target !== this) {
+				return;
+			}
+			anitInput.unbind('transitionend');
+			$(".input-bg").css("border-color", "var(--dark)");
+			anitInput.css("opacity", "0");
+		});
+		$('body').append(anitInput);
+		ornamentInput.css('opacity', 0);
+		if ($(window).data('anitInputFn')) {
+			$(window).unbind('resize', $(window).data('anitInputFn'));
+		}
+		var anitInputFn = function () {
+			var inputBg = $('.input-bg');
+			var scaleX = inputBg.outerWidth() / ornamentInput.outerWidth();
+			var scaleY = inputBg.outerHeight() / ornamentInput.outerHeight();
+			var translateX = inputBg.offset().left - left - (ornamentInput.outerWidth() - inputBg.outerWidth()) / 2;
+			var translateY = inputBg.offset().top - top - (ornamentInput.outerHeight() - inputBg.outerHeight()) / 2;
+			anitInput.css({
+				'transform': 'translateX(' + translateX + 'px) translateY(' + translateY + 'px) scale(' + scaleX + ',' + scaleY + ') translate3d(0,0,0)',
+				'transition': '.3s',
+				'border-color': 'var(--dark)'
+			});
+		}
+		$(window).data('anitInputFn', anitInputFn);
+		$(window).bind('resize', anitInputFn);
 		// 弹出软键盘
 		
 		

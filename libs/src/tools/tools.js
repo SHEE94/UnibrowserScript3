@@ -12,6 +12,7 @@ import {
 	EVENT_TYPE,
 	ACTION_TYPR
 } from '../../tools/types.js'
+import AD from './ad.js';
 let $statistics = {}
 class Tools {
 	constructor(wv) {
@@ -113,4 +114,5 @@ class Tools {
 
 export default function install(wv) {
 	wv.Tools = new Tools(wv)
+	wv.AD = new AD(wv)
 }

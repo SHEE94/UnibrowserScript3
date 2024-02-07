@@ -65,10 +65,14 @@ class Setting {
 		const loading = () => {
 			_self.alertCount = true
 		}
-		let blacklist = []
+
 		const listen = () => {
+			let blacklist = this.wv.state.data.blackUrls || []
 			this.wv.activeWebview.addEventListener('loading', loading)
 			let activeWebview = this.wv.activeWebview;
+			
+			
+			
 
 			const overrideUrlLoading = (f) => {
 				this.wv.activeWebview.overrideUrlLoading({
@@ -100,17 +104,28 @@ class Setting {
 				activeWebview.overrideUrlLoading({}, (e) => {
 					if (!loadingOverri) return;
 					loadingOverri = false;
+					
+					
+					
 					let url = e.url;
-
+					if(!this.overrideUrl(this.wv,url)){
+						return;
+					}
+					let reg = new RegExp('^(http|file|ftp|blob|ws|wss).*', 'g')
+					if (!reg.test(url)) {
+						this.wv.emit('overrideUrlLoading', url);
+						return;
+					}
 					let currentUrl = activeWebview.getURL()
 					let $URL = getStrOrigin(url)
-					
+
 					if (currentUrl.indexOf($URL) > -1) {
 						overrideUrlLoading()
 						this.wv.loadURL(url)
 					} else {
-						for(let i of blacklist){
-							if(url.indexOf(i)>-1){
+
+						for (let i of blacklist) {
+							if (url.indexOf(i) > -1) {
 								return;
 							}
 						}
@@ -121,26 +136,44 @@ class Setting {
 								if (res.confirm) {
 									overrideUrlLoading(true)
 									this.wv.loadURL(url)
-								}else{
+								} else {
 									uni.showActionSheet({
-										itemList:['加入黑名单'],
+										itemList: ['加入黑名单'],
 										success: (res) => {
-											if(res.tapIndex == 0){
-												blacklist.push(getStrOrigin(url))
+											if (res.tapIndex == 0) {
+												blacklist.push(getStrOrigin(
+													url))
+												this.state.data.blackUrls =
+													blacklist;
 											}
 										}
 									})
 								}
 							}
 						})
-						
-						
-						
-						
 					}
 				})
 			} else {
-				overrideUrlLoading(true)
+
+				this.wv.activeWebview.overrideUrlLoading({}, (e) => {
+					let url = e.url;
+					if(!this.overrideUrl(this.wv,url)){
+						return;
+					}
+					for (let i of blacklist) {
+						if (url.indexOf(i) > -1) {
+							return;
+						}
+					}
+					let reg = new RegExp('^(http|file|ftp|blob|ws|wss).*', 'g')
+					if (!reg.test(url)) {
+						this.wv.emit('overrideUrlLoading', url);
+						return;
+					}
+					overrideUrlLoading(true);
+					this.wv.loadURL(url);
+				})
+
 			}
 		}
 
@@ -180,6 +213,16 @@ class Setting {
 			})
 		}
 	}
+	
+	/**
+	 * 链接拦截,覆盖重写
+	 * @param {Object} wv webview实例
+	 * @param {Object} url 拦截的url
+	 */
+	overrideUrl(wv,url){
+		return true;
+	}
+	
 	saveLastPageInfo(wv) {
 		if (wv.lastpage) return;
 		wv.lastpage = true;
@@ -340,6 +383,11 @@ class Setting {
 			this.read = !this.read
 			this.readMode(this.wv.activeWebview)
 		})
+		
+		this.wv.on(EVENT_TYPE['loading'],()=>{
+			console.log('loading')
+			this.readMode(this.wv.activeWebview)
+		})
 	}
 
 
@@ -350,44 +398,25 @@ class Setting {
 	readMode(wv) {
 		if (!wv) return;
 		if (this.read) {
+			wv.appendJsFile('_www/static/sdk/readmod/Readability.js')
 			wv.evalJS(`
 			(function() {
-				let readNodes = {
-					score: 0,
-				};
-				const nodes = document.body.getElementsByTagName('p');
-				for (var i = 0, len = nodes.length; i < len; i++) {
-					const node = nodes[i];
-					let score = 1;
-					const text = node.innerText;
-					const reg = ${new RegExp(/(：|。|；|，|,|\.|\?|”)/,'g')};
-					score += text.split(reg).length;
-					score += Math.min(Math.floor(text.length / 100), 3);
-					typeof node.score !== 'number' && (node.score = 0);
-					node.score += score;
-					node.setAttribute('score', node.score);
-					(node.score > readNodes.score) && (readNodes = node);
-					let index = 0;
-					let tempNode = node.parentElement;
-					while (tempNode && tempNode.tagName !== 'BODY') {
-						if (/div|article|section/i.test(tempNode.tagName)) {
-							(typeof tempNode.score !== 'number') && (tempNode.score = 0);
-							tempNode.score += (score / (index < 2 ? index + 2 : index * 3));
-							tempNode.setAttribute('score', tempNode.score);
-							(tempNode.score > readNodes.score) && (readNodes = tempNode);
-							if (++index >= 3) {
-								break;
-							}
-						}
-						tempNode = tempNode.parentElement;
-					}
-				};
+				let readNodes = document.createElement('div');
+				var documentClone = document.cloneNode(true);
+				var article = new Readability(document).parse();
+				
+				var content = article.content
+				readNodes.innerHTML = content;
 				if (readNodes) {
+					readNodes.classList.add('readmod')
 					readNodes.style.cssText = 'background:#e6cea0;color:#000;display: block; position: fixed; inset: 0;z-index:999999;overflow-y:auto;padding:12px;';
 					document.querySelectorAll('header,footer').forEach(function(n){
 						n.style.display = 'none';
 					});
-					
+					let style = document.createElement('style')
+					style.innerHTML = '.readmod img{width:100%;height:auto;}'
+					document.body.appendChild(readNodes)
+					document.body.appendChild(style)
 					window.readNodes = readNodes;
 				}
 			})()

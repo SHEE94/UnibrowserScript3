@@ -2,8 +2,8 @@
     "name" : "Script Browser 3",
     "appid" : "",
     "description" : "",
-    "versionName" : "3.0.2",
-    "versionCode" : 302,
+    "versionName" : "3.0.3",
+    "versionCode" : 303,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -23,8 +23,13 @@
         "distribute" : {
             /* android打包配置 */
             "android" : {
+                "permissionExternalStorage" : {
+                    "request" : "always",
+                    "prompt" : "应用保存运行状态等信息，需要获取读写手机存储（系统提示为访问设备上的照片、媒体内容和文件）权限，请允许。"
+                },
                 "permissions" : [
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"com.android.launcher.permission.INSTALL_SHORTCUT\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
                     "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
                     "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
@@ -33,6 +38,9 @@
                     "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.CAMERA\"/>",
                     "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+                    "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />",
+                    "<uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\" />",
+                    "    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
                     "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",

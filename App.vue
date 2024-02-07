@@ -1,10 +1,10 @@
 <script>
 	import {
-		WebView
+		WebView,
+		Setting,
+		Tools
 	} from '@/libs/browser.core.js'
-	import setting from '@/libs/src/setting/setting.js'
-	import violentmonkey from '@/libs/src/Violentmonkey/index.js'
-	import tools from '@/libs/src/tools/tools.js'
+	
 
 	// #ifdef APP
 	const main = plus.android.runtimeMainActivity()
@@ -76,14 +76,20 @@
 			}
 		},
 		onLaunch: function() {
+			plus.android.requestPermissions(["android.permission.READ_CALENDAR",
+				"com.android.launcher.permission.INSTALL_SHORTCUT",
+				"android.permission.READ_EXTERNAL_STORAGE",
+				"android.permission.WRITE_EXTERNAL_STORAGE",
+				"android.permission.MANAGE_EXTERNAL_STORAGE"
+			])
 			console.log('App Launch')
 
 			// 安装设置插件
-			this.globalData.webview.plusInstall(setting)
+			this.globalData.webview.plusInstall(Setting)
 			// 安装暴力猴插件，这是个独立项目，当前项目中使用的代码为测试代码，请勿使用在正式环境中
 			// this.globalData.webview.plusInstall(violentmonkey)
 			// 安装工具插件
-			this.globalData.webview.plusInstall(tools)
+			this.globalData.webview.plusInstall(Tools)
 			const domModule = uni.requireNativePlugin('dom');
 			domModule.addRule('fontFace', {
 				fontFamily: 'ccfffasd',

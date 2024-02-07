@@ -1,6 +1,6 @@
 <template>
 	<view :class="{ text: styleType === 'text' }" :style="{ borderColor: styleType === 'text' ? '' : activeColor }" class="segmented-control">
-		<view v-for="(item, index) in values" :class="[{ text: styleType === 'text' }, { active: index === currentIndex }]" :key="index" :style="{
+		<text v-for="(item, index) in values" :class="[{ text: styleType === 'text' }, { active: index === currentIndex }]" :key="index" :style="{
         color:
           index === currentIndex
             ? styleType === 'text'
@@ -12,7 +12,7 @@
         backgroundColor: index === currentIndex && styleType === 'button' ? activeColor : ''
       }" class="segmented-control-item" @click="_onClick(index)">
 			{{ item }}
-		</view>
+		</text>
 	</view>
 </template>
 

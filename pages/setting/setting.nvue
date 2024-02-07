@@ -172,8 +172,8 @@
 					{
 						icon: 'icon-shuqian',
 						name: 'setting.intercept',
-						to: '/pages/intercept/intercept',
-						key: 'intercept'
+						to: '/pages/override/override',
+						key: 'override'
 					},
 					{
 						icon: 'icon-shuqian',
@@ -190,7 +190,7 @@
 					},
 					{
 						icon: 'icon-shuqian',
-						name: 'setting.tools',
+						name: 'moremenu.extend',
 						to: '/pages/tools/tools',
 						key: '/pages/tools/tools'
 					},

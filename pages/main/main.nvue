@@ -133,8 +133,8 @@
 					console.log(this.webview.events)
 					console.log(videos)
 					const subNVue = uni.getSubNVueById('popup');
-					
-					subNVue.show('', 0, ()=> {
+
+					subNVue.show('', 0, () => {
 						this.webview.state.setData({
 							videos
 						})
@@ -143,17 +143,6 @@
 				})
 			},
 
-			// 
-			// async createWindow(info) {
-			// 	let webview = await this.webview.createWebview(info);
-			// 	this.eventListener(webview)
-			// 	return webview;
-			// },
-			// eventListener(webview) {
-			// 	webview.addEventListener('loaded', () => {
-			// 		this.setBookmarkInfo(webview)
-			// 	})
-			// },
 			setBookmarkInfo(webview) {
 				app.globalData.browserInfo.title = webview.getTitle()
 				app.globalData.browserInfo.url = webview.getURL()
@@ -216,8 +205,9 @@
 
 
 				const activeWebview = app.globalData.webview.activeWebview;
+				let alertCount = false
 				this.webview.on('overrideUrlLoading', (url) => {
-
+					if (alertCount) return;
 					if (url.indexOf('javascript') > -1) return;
 					uni.showModal({
 						title: t("browser.tips.10"),
@@ -226,19 +216,18 @@
 							if (res.confirm) {
 								let a =
 									`var s_a = document.createElement('a');s_a.setAttribute('href','${url}');s_a.click();s_a.remove()`;
-								// if (!this.openurlwebview) {
-								// 	this.openurlwebview = plus.webview.create(url);
-								// }
-								// this.openurlwebview.evalJS(a);
+								
 								app.globalData.webview.activeWebview.evalJS(a);
+							} else {
+								alertCount = true;
 							}
 						}
 					});
 				})
-			},
-
-			message(e) {},
-			onPostMessage(e) {}
+				this.webview.on(EVENT_TYPE['loading'],()=>{
+					alertCount = false;
+				})
+			}
 		}
 	};
 </script>

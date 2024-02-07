@@ -6,20 +6,20 @@
 			<!-- <uni-segmented-control :current="current" :values="items" :style-type="styleType" :active-color="activeColor"   @clickItem="onClickItem" /> -->
 		</view>
 		<view class="content">
-			<view v-show="current === 0">
+			<view v-if="current === 0" class="list">
 				<view class="cognate-list" v-for="(listData,index) in listDatas" :key="index">
 					<view class="cognate-radio"><radio value="cb" :checked="listData.isActive"   @click.prevent="getChange(listData.path)"/></view>
 					<view class="cognate-content">
-						<view class="work-name" :class="{activeColor:listData.isActive}">{{listData.fileName}}</view>
+						<text class="work-name" :class="{activeColor:listData.isActive}">{{listData.fileName}}</text>
 						<view class="work-cont">
-							<view class="work-person">{{listData.size}}</view>
+							<text class="work-person">{{listData.size}}</text>
 						</view>
 					</view>
 				</view>
 			</view>	
 		</view>
 		<!-- 无数据页面 -->
-		<view class="no_data"  v-if="isData" style="text-align: center;">{{$t("FM.tips.1")}}</view>			
+		<text class="no_data"  v-if="isData" style="text-align: center;">{{$t("FM.tips.1")}}</text>			
 		<view class="uniBtn">
 			<button class="btn" type="default" v-if="false">{{$t("FM.tips.2")}}</button>
 			<button class="btn btn-submit" :class="{disbled:disbled}"  @click="savePath">{{$t("FM.tips.3")}}</button>
@@ -192,11 +192,11 @@
 	.content {
 		display: flex;
 		margin-top:20upx;
-		width:100%;
+		flex: 1;
 		padding-bottom:120upx;
 	}
-	.content>view{
-		width:100%;
+	.content .list{
+		flex: 1;
 	}
 	.uni-common-mt{
 		margin:0;
@@ -208,7 +208,7 @@
 	.cognate-list{
 		display:flex;
 		flex-direction:row;
-		width:100%;
+		flex: 1;
 		height:120upx;
 		background:#fff;
 		border-bottom:1px solid #f6efef;

@@ -47,9 +47,13 @@
 					this.url = activeWebview.getURL()
 				}
 			})
-
-			webview.on(EVENT_TYPE['ACTIVE-WEBVIEW'], () => {
+			webview.on(EVENT_TYPE['CREATE-WEBVIEW'],()=>{
 				this.wvCount = webview.webviews.length;
+			})
+			
+			webview.on(EVENT_TYPE['ACTIVE-WEBVIEW'], (wv) => {
+				this.wvCount = webview.webviews.length;
+				this.getTitle(wv)
 			})
 		},
 		filters: {
@@ -156,8 +160,9 @@
 
 		.url-text {
 			width: 100px;
-			font-size: 17px;
+			font-size: 14px;
 			line-height: 30px;
+			text-overflow: ellipsis;
 		}
 		.title-content {
 			background-color: #dddddd;

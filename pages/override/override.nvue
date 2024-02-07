@@ -1,0 +1,141 @@
+<template>
+	<view style="padding: 15px;box-sizing: border-box;">
+		<view class="btns">
+			<button class="defaultbtn" size="mini" @tap="clearALL">{{$t("resourcelog.tips.1")}}</button>
+			<button class="defaultbtn" size="mini" @tap="addoverride">{{$t("resourcelog.tips.2")}}</button>
+		</view>
+		
+		<text v-if="blackUrls.length>0" style="border-bottom: 1px solid #dddddd; padding: 15px 0px;font-weight: bold;">
+			{{$t("resourcelog.tips.3")}}
+		</text>
+		<view v-for="(item, index) in blackUrls" :key="index" class="list" :data-index="index" @tap="changeRequest">			
+			{{ item }}
+		</view>
+		<text v-if="blackClassList.length>0" style="border-bottom: 1px solid #dddddd; padding: 15px 0px;font-weight: bold;">
+			{{$t("pages.inter.log")}}
+		</text>
+		<view v-for="(item, index) in blackClassList" :key="index" class="list" :data-index="index" @tap="changeHOst">			
+			{{ item }}
+		</view>
+		<uni-popup  ref="pops" type="dialog">
+			<uni-popup-dialog mode="input" message="Link/Domain" :duration="2000" :before-close="true" @close="showPoop" @confirm="confrim"></uni-popup-dialog>
+		</uni-popup>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+	import {
+		EVENT_TYPE
+	} from '@/libs/tools/types.js'
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	
+	// import uniPop from '@/components/'
+	const app = getApp()
+	
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		
+		data() {
+			return {
+				blackUrls:[],
+				blackClassList:[]
+			};
+		},
+		onLoad() {
+			this.webview = app.globalData.webview;
+			this.blackUrls = this.webview.state.data.blackUrls;
+			console.log(this.blackUrls)
+			this.blackClassList = this.webview.state.data.blackClassList;
+			
+		},
+		methods:{
+			$t:t,
+			enterd(e){
+				this.hostval = e.detail.value;
+			},
+			showPoop(e){
+				this.$refs.pops.close();
+				
+			},
+			confrim(value){
+				this.$refs.pops.close();
+				// let _type = e.currentTarget.dataset.type;
+				if(value.length<5)return;
+					this.blackUrls.unshift(value);
+					this.webview.state.data.blackUrls = this.blackUrls
+			},
+			clearALL(){
+				this.blackUrls = this.webview.state.data.blackUrls = [];
+				this.blackClassList = this.webview.state.data.blackClassList = [];
+				
+			},
+			addoverride(e){
+				 this.$refs.pops.open()
+			},
+			changeRequest(e){
+				let index = e.currentTarget.dataset.index;
+				uni.showModal({
+					title:this.$t("browser.tips.10"),
+					content:this.$t("resourcelog.tips.5"),
+					success: (res) => {
+						if(res.confirm){
+							this.blackUrls.splice(index,1);
+							this.webview.state.data.blackUrls = this.blackUrls
+						}
+					}
+				})
+			},
+			changeHOst(e){
+				let index = e.currentTarget.dataset.index;
+				uni.showModal({
+					title:this.$t("browser.tips.10"),
+					content:this.$t("resourcelog.tips.5"),
+					success: (res) => {
+						if(res.confirm){
+							this.blackClassList.splice(index,1);
+							this.webview.state.data.blackClassList = this.blackClassList
+						}
+					}
+				})
+			}
+		}
+	}
+</script>
+
+<style lang="less">
+.list {
+	flex: 1;
+	border-bottom: 1px solid #dddddd;
+	padding: 15upx 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	
+}
+.btns{
+		flex-direction: row;
+	}
+.defaultbtn{
+	float: right;padding: 8upx 15upx;line-height: 1.2;font-size: 26upx;border-radius: 4upx;
+	border: 1px solid #ccc;
+	margin-left: 10upx;
+}
+.pop-btns{
+	position: absolute;
+	bottom: 30upx;
+	width: 80%;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	justify-content: space-around;
+	font-size: 35upx;
+}
+</style>

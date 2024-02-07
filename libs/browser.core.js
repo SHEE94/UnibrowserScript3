@@ -8,6 +8,11 @@
  *@LastEditTime: 2024-02-04
  */
 
+import Setting from './src/setting/setting.js'
+import Tools from './src/tools/tools.js'
+import ScriptExtension from './src/tools/script-extension.js'
+import Violentmonkey from './src/Violentmonkey/index.js'
+
 const system = uni.getSystemInfoSync();
 import {
 	EVENT_TYPE,
@@ -188,9 +193,10 @@ class WebView extends EventEmitter {
 	 * @param {Object} id 窗口id
 	 */
 	closeWindow(id) {
+		
 		_webviews.forEach((item, index) => {
 			if (item.id == id) {
-
+				item.removeFromParent()
 				item.close()
 				_webviews.splice(index, 1)
 			}
@@ -203,7 +209,7 @@ class WebView extends EventEmitter {
 	 */
 	closeAllWindow() {
 		_webviews.forEach((webview, index) => {
-
+			webview.removeFromParent()
 			webview.close()
 			_webviews.splice(index, 1)
 		})
@@ -335,7 +341,7 @@ class WebView extends EventEmitter {
 			}, 1000)
 		})
 		wv.addEventListener('rendering',()=>{
-			
+			this.emit(EVENT_TYPE['loading'], wv)
 			wv.allRes = [];
 		})
 
@@ -352,7 +358,56 @@ class WebView extends EventEmitter {
 
 
 	}
+	
 
+	
+	getStrOrigin(val){
+		let text = '';
+		if (val && typeof val === 'string') {
+			const reg = /((https|http|ftp|file):\/\/)([A-Za-z0-9\-.]+)(:[0-9]+){0,1}/g;
+			const arr = val.match(reg);
+			if (arr && arr.length > 0) {
+				text = arr[0];
+			}
+		}
+		return text;
+	}
+	
+	/**
+	 * 将网页安装为app
+	 */
+	installWebapp(options){
+		if(!options){
+			options = {
+				name:this.activeWebview.getTitle(),
+				icon:this.getIco(),
+				toast:'',
+				extra:{
+					'url':this.getURL()
+				}
+			}
+		}
+		plus.navigator.createShortcut(options,(e)=>{
+			const sure=e.sure;
+			if(e.sure){
+				uni.showToast({
+					icon:'success',
+					title:'创建成功'
+				})
+			}else{
+				uni.showToast({
+					icon:'error',
+					title:'创建失败'
+				})
+			}
+		});
+	}
+	
+	getIco(){
+		const activeWeview = this.checkedActiveWebview();
+		return this.getStrOrigin(activeWeview.getURL())+'/favicon.ico';
+	}
+	
 	/**
 	 * 获取cookie
 	 * @param {String} name
@@ -592,5 +647,9 @@ class WebView extends EventEmitter {
 }
 
 export {
-	WebView
+	WebView,
+	Setting,
+	Tools,
+	ScriptExtension,
+	Violentmonkey
 }

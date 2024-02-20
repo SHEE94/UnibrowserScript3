@@ -46,7 +46,8 @@
 	"setting.lastPage": "记录最后离开页面",
 	"setting.blank": "在新窗口打开页面",
 	"setting.homepage": "设置主页",
-	
+	"setting.black.title": "加入黑名单",
+	"setting.black.ysmode": "隐私模式",
 	
 	"weblog.override-resource": "查看已拦截的资源",
 	"weblog.type": "类型",
@@ -152,7 +153,7 @@
 	"browser.tips.12":"网页想要下载文件，是否允许？",
 	"browser.tips.13":"开启阅读",
 	"browser.tips.14":"关闭阅读",
-	"browser.tips.15":"无数据",
+
 	
 	
 	"history.tips.1":"清空",
@@ -236,8 +237,5 @@
 	"website.tips.3":"已重置",
 	"website.tips.4":"载入中",
 	"website.tips.5":"输入json格式",
-	"webite.additionalHttpHeaders":"自定义请求头",
-	"webite.camera":"访问摄像头次数",
-	"webite.historyState":"修改网络地址次数",
-	"webite.cookieTitle":"当前cookie"
+	"webite.additionalHttpHeaders":"自定义请求头"
 }

@@ -1,8 +1,13 @@
-const blackUrls = uni.getStorageSync('blackUrls') || [];
+const regStr = '([0-9].\D[0-9])|(.*--.*)'
+let blackUrls = uni.getStorageSync('blackUrls') || [regStr];
 const blackClassList = uni.getStorageSync('blackClassList') || [];
 export default class AD {
 	constructor(wv) {
 		this.wv = wv;
+		console.log(regStr)
+		if(!blackUrls.length){
+			blackUrls = [regStr]
+		}
 		this.wv.state.setData({
 			blackUrls,
 			blackClassList
@@ -10,13 +15,13 @@ export default class AD {
 		this.wv.state.watch('blackClassList', (val) => {
 			uni.setStorage({
 				key: 'blackClassList',
-				data: blackClassList
+				data: val
 			})
 		})
 		this.wv.state.watch('blackUrls', (val) => {
 			uni.setStorage({
 				key: 'blackUrls',
-				data: blackUrls
+				data: val
 			})
 		})
 		this.wv.state.getData('activeWebview', activeWebview => {
@@ -72,6 +77,8 @@ export default class AD {
 		if (!url) return;
 		blackUrls.push(url);
 		this.wv.state.data.blackUrls = blackUrls;
+		let code = this.injectClearADCode();
+		this.wv.activeWebview.evalJS(code)
 	}
 	/**
 	 * 添加class到黑名单
@@ -81,7 +88,7 @@ export default class AD {
 		if (!className) return;
 		blackClassList.push(className);
 		this.wv.state.data.blackClassList = blackClassList;
+		let code = this.injectClearADCode();
+		this.wv.activeWebview.evalJS(code)
 	}
-
-
 }

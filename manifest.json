@@ -1,9 +1,9 @@
 {
     "name" : "Script Browser 3",
-    "appid" : "",
+    "appid" : "__UNI__A92EF1E",
     "description" : "",
-    "versionName" : "3.0.3",
-    "versionCode" : 303,
+    "versionName" : "3.0.4",
+    "versionCode" : 304,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -91,6 +91,9 @@
                         "spotlight@3x" : "unpackage/res/icons/120x120.png"
                     }
                 }
+            },
+            "splashscreen" : {
+                "useOriginalMsgbox" : false
             }
         },
         "renderer" : "native",

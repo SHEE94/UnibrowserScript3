@@ -20,19 +20,19 @@
         "showAlways" : false
     },
     "styles" : {
-        "backgroundColor" : "#00FF00",
+        "backgroundColor" : "#eeeeee",
         "borderRadius" : "5px",
         "title" : {
-            "color" : "#ff00ff"
+            "color" : "#323232"
         },
         "buttonAccept" : {
-            "color" : "#ffff00"
+            "color" : "#008585"
         },
         "buttonRefuse" : {
-            "color" : "#00ffff"
+            "color" : "#515151"
         },
         "buttonVisitor" : {
-            "color" : "#00ffff"
+            "color" : "#515151"
         }
     }
 }

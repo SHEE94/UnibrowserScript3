@@ -4,7 +4,8 @@
 		Setting,
 		Tools
 	} from '@/libs/browser.core.js'
-	
+
+
 
 	// #ifdef APP
 	const main = plus.android.runtimeMainActivity()
@@ -13,6 +14,7 @@
 	// #endif
 
 	const webview = new WebView()
+	let oldURL = ''
 	const getIntentData = (arg) => {
 		// #ifdef APP
 
@@ -29,22 +31,24 @@
 				//TODO handle the exception
 			}
 		}
+		let loadUrl = ''
 		if (arg.targeturl) {
-			webview.state.setData({
-				loadUrl: arg.targeturl
-			})
+			loadUrl = arg.targeturl
 		}
 		if (arg.url) {
-			webview.state.setData({
-				loadUrl: arg.url
-			})
+			loadUrl = arg.url
 		}
 		if (typeof arg === 'string' && arg.length > 0) {
-			webview.state.setData({
-				loadUrl: arg
-			})
+			loadUrl = arg
 		}
+		if (oldURL == loadUrl) return;
+
+		webview.state.setData({
+			loadUrl: loadUrl
+		})
+		oldURL = loadUrl;
 	}
+
 	plus.globalEvent.addEventListener('newintent', (e) => {
 		main.setIntent(Intent)
 		getIntentData(plus.runtime.arguments)
@@ -100,8 +104,10 @@
 		onShow: function() {
 			console.log('App Show')
 			let arg = plus.runtime.arguments;
-			getIntentData(arg)
-
+			if (arg) {
+				getIntentData(arg)
+			}
+			
 		},
 		onHide: function() {
 			console.log('App Hide')

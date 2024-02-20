@@ -124,9 +124,10 @@
 
 					this.webview.loadURL(this.to_link(searchVal))
 				})
-
+				let $val = ''
 				this.webview.state.getData('loadUrl', (val) => {
-					if (!val) return;
+					if (!val || $val != val) return;
+					$val = val;
 					this.webview.openNewWindow(val, this);
 				})
 				this.webview.on(EVENT_TYPE['VIDEO-RES'], (videos) => {
@@ -216,7 +217,7 @@
 							if (res.confirm) {
 								let a =
 									`var s_a = document.createElement('a');s_a.setAttribute('href','${url}');s_a.click();s_a.remove()`;
-								
+
 								app.globalData.webview.activeWebview.evalJS(a);
 							} else {
 								alertCount = true;
@@ -224,7 +225,7 @@
 						}
 					});
 				})
-				this.webview.on(EVENT_TYPE['loading'],()=>{
+				this.webview.on(EVENT_TYPE['loading'], () => {
 					alertCount = false;
 				})
 			}

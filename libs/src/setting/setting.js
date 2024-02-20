@@ -7,6 +7,16 @@
  *@LastEditors: Xianxu
  *@LastEditTime: 2024-02-02
  */
+import {
+	initVueI18n,
+	I18n
+} from '@dcloudio/uni-i18n'
+import messages from '../../locale/index'
+
+const {
+	t,
+	setLocale
+} = initVueI18n(messages)
 
 import Bookmark from './bookmark.js'
 import History from './history.js'
@@ -58,6 +68,7 @@ class Setting {
 				})
 			}
 		})
+		setLocale(this.settingConfig.language[this.settingConfig.langCurrnt].code);
 	}
 	alertCount = true;
 
@@ -70,9 +81,6 @@ class Setting {
 			let blacklist = this.wv.state.data.blackUrls || []
 			this.wv.activeWebview.addEventListener('loading', loading)
 			let activeWebview = this.wv.activeWebview;
-			
-			
-			
 
 			const overrideUrlLoading = (f) => {
 				this.wv.activeWebview.overrideUrlLoading({
@@ -104,11 +112,9 @@ class Setting {
 				activeWebview.overrideUrlLoading({}, (e) => {
 					if (!loadingOverri) return;
 					loadingOverri = false;
-					
-					
-					
+
 					let url = e.url;
-					if(!this.overrideUrl(this.wv,url)){
+					if (!this.overrideUrl(this.wv, url)) {
 						return;
 					}
 					let reg = new RegExp('^(http|file|ftp|blob|ws|wss).*', 'g')
@@ -125,26 +131,33 @@ class Setting {
 					} else {
 
 						for (let i of blacklist) {
-							if (url.indexOf(i) > -1) {
+							let reg = new RegExp(i,'g')
+							if (reg.test(url)) {
 								return;
 							}
 						}
 						uni.showModal({
-							title: '提示',
-							content: '是否跳转第三方网址？地址：' + url,
+							title: t('browser.tips.10'),
+							content: `${t('privacy.otherWebsite')}: ${url}`,
 							success: (res) => {
 								if (res.confirm) {
-									overrideUrlLoading(true)
-									this.wv.loadURL(url)
+									overrideUrlLoading(true);
+									this.wv.loadURL(url);
 								} else {
 									uni.showActionSheet({
-										itemList: ['加入黑名单'],
+										itemList: [t('setting.black.title'), t(
+											'history.tips.3'), t(
+											'history.tips.4')],
 										success: (res) => {
 											if (res.tapIndex == 0) {
 												blacklist.push(getStrOrigin(
 													url))
 												this.state.data.blackUrls =
 													blacklist;
+											} else if (res.tapIndex == 1) {
+												this.wv.openNewWindow(url)
+											} else if (res.tapIndex == 2) {
+												this.wv.openBGWindow(url)
 											}
 										}
 									})
@@ -157,11 +170,12 @@ class Setting {
 
 				this.wv.activeWebview.overrideUrlLoading({}, (e) => {
 					let url = e.url;
-					if(!this.overrideUrl(this.wv,url)){
+					if (!this.overrideUrl(this.wv, url)) {
 						return;
 					}
 					for (let i of blacklist) {
-						if (url.indexOf(i) > -1) {
+						let reg = new RegExp(i,'g')
+						if (reg.test(url)) {
 							return;
 						}
 					}
@@ -212,17 +226,27 @@ class Setting {
 				this.saveLastPageInfo(activeWebview)
 			})
 		}
+		
+		this.wv.state.getData('activeWebview',(activeWebview)=>{
+			if(!activeWebview)return;
+			let nwv = activeWebview.nativeInstanceObject();
+			if (this.settingConfig.location && uni.getSystemInfoSync().osName == 'android') {
+				plus.android.invoke(nwv, 'setGeolocationEnabled', true);
+			} else {
+				plus.android.invoke(nwv, 'setGeolocationEnabled', false);
+			}
+		})
 	}
-	
+
 	/**
 	 * 链接拦截,覆盖重写
 	 * @param {Object} wv webview实例
 	 * @param {Object} url 拦截的url
 	 */
-	overrideUrl(wv,url){
+	overrideUrl(wv, url) {
 		return true;
 	}
-	
+
 	saveLastPageInfo(wv) {
 		if (wv.lastpage) return;
 		wv.lastpage = true;
@@ -383,11 +407,13 @@ class Setting {
 			this.read = !this.read
 			this.readMode(this.wv.activeWebview)
 		})
-		
-		this.wv.on(EVENT_TYPE['loading'],()=>{
+
+		this.wv.on(EVENT_TYPE['loading'], () => {
 			console.log('loading')
 			this.readMode(this.wv.activeWebview)
 		})
+
+		
 	}
 
 

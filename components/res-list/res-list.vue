@@ -1,5 +1,6 @@
 <template>
 	<view class="res-list-container" ref="resList">
+		<text class="no-data" v-if="!videos.length">{{$t('browser.tips.15')}}</text>
 		<scroll-view scroll-y="true" class="list">
 			<view>
 				<view class="item" v-for="(item,index) in videos" :key="item.url">
@@ -13,8 +14,20 @@
 </template>
 
 <script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
 	const app = getApp()
 	const animation = uni.requireNativePlugin('animation');
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
 	export default {
 		name: "res-list",
 		data() {
@@ -41,6 +54,7 @@
 			});
 		},
 		methods: {
+			$t: t,
 			playVideo(url) {
 
 				if (uni.getSystemInfoSync().osName == 'android') {
@@ -62,6 +76,12 @@
 </script>
 
 <style lang="scss">
+	.no-data {
+		padding: 30px;
+		color: #666;
+		text-align: center;
+	}
+
 	.res-list-container {
 		background-color: #fff;
 		position: fixed;
@@ -86,8 +106,8 @@
 		.url-text {
 			width: 300px;
 			height: 25px;
-			color:#313131;
-			text-overflow:ellipsis;
+			color: #313131;
+			text-overflow: ellipsis;
 		}
 
 		.item {

@@ -36,6 +36,19 @@
 			<text class="title font24">{{$t("website.location")}}：</text>
 			<text class="text font20">{{info.location}}</text>
 		</view>
+		<view class="item">
+			<text class="title font24">{{$t('webite.camera')}}：</text>
+			<text class="text font20">{{info.cameraCount}}</text>
+		</view>
+		<view class="item">
+			<text class="title font24">{{$t('webite.historyState')}}：</text>
+			<text class="text font20">{{info.historyState}}</text>
+		</view>
+		<view class="item">
+			<text class="title font24">{{$t('webite.cookieTitle')}}：</text>
+			<textarea class="text font20 colorccc" :value="info.cookies"/>
+			
+		</view>
 		
 		<view class="website-setting">
 			<text class="website-setting-title">
@@ -182,7 +195,7 @@
 		data() {
 			return {
 				info: {},
-				settingConfig:JSON.parse(JSON.stringify(websiteSetting))
+				settingConfig:JSON.parse(JSON.stringify(websiteSetting)),
 			};
 		},
 		
@@ -246,6 +259,7 @@
 </script>
 
 <style lang="less">
+	
 	.content {
 		padding:10px;
 		.item {
@@ -332,5 +346,11 @@
 	}
 	.reset{
 		margin-bottom: 10px;
+	}
+	.colorccc{
+		color: #999;
+		border: 1px solid #999999;
+		border-radius: 5px;
+		padding: 5px;
 	}
 </style>

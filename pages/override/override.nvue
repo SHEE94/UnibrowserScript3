@@ -124,9 +124,9 @@
 		flex-direction: row;
 	}
 .defaultbtn{
-	float: right;padding: 8upx 15upx;line-height: 1.2;font-size: 26upx;border-radius: 4upx;
-	border: 1px solid #ccc;
-	margin-left: 10upx;
+
+	
+	margin-right: 10upx;
 }
 .pop-btns{
 	position: absolute;

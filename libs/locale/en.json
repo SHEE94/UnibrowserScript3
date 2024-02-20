@@ -46,6 +46,8 @@
 	"setting.lastPage": "Record the last tab",
 	"setting.blank": "Open the page in a new window",
 	"setting.homepage": "Set home tab",
+	"setting.black.title": "Add to blacklist",
+	"setting.black.ysmode": "Privacy mode",
 	
 	"weblog.override-resource": "blocked resources",
 	"weblog.type": "Type",
@@ -151,7 +153,7 @@
 	"browser.tips.12":"If the page wants to download a file, is it allowed?",
 	"browser.tips.13":"Enable reading mode",
 	"browser.tips.14":"Disable reading mode",
-	"browser.tips.15":"No Data",
+	
 	
 	
 	"history.tips.1":"Empty",
@@ -236,8 +238,5 @@
 	"website.tips.3":"Successful",
 	"website.tips.4":"Statistics",
 	"website.tips.5":"输入JSON类型",
-	"webite.additionalHttpHeaders":"Additional Http Headers",
-	"webite.camera":"Camera access times",
-	"webite.historyState":"The number of times the network address is changed",
-	"webite.cookieTitle":"cookie"
+	"webite.additionalHttpHeaders":"Additional Http Headers"
 }

@@ -147,7 +147,10 @@ try {
 						clipboardCount: 0,
 						timerCount: 0,
 						addNodeCount: 0,
-						location: 0
+						location: 0,
+						cameraCount: 0,
+						historyState:0,
+						cookies:''
 					}
 
 					this.statisticsName = `${host}_statistics`
@@ -202,7 +205,7 @@ try {
 					})
 				}
 				send() {
-
+					this.Data.cookies = document.cookie
 					webSDK.sendMessage({
 						action: 'statistics',
 						data: this.Data
@@ -222,6 +225,12 @@ try {
 				}
 				addClip() {
 					this.Data.clipboardCount++;
+				}
+				addCamera() {
+					this.Data.cameraCount++
+				}
+				addHistory(){
+					this.Data.historyState++
 				}
 			}
 
@@ -282,16 +291,28 @@ try {
 			};
 			history.pushState = _historyWrap('pushState');
 			history.replaceState = _historyWrap('replaceState')
-			
-			const listenerSate = function(e){
+
+			const listenerSate = function(e) {
+				$websiteStatistics.addHistory()
 				webSDK.sendMessage({
-					action:'historyState',
-					data:JSON.stringify(e)
+					action: 'historyState',
+					data: JSON.stringify(e)
 				})
 			}
-			
-			window.addEventListener('pushState',listenerSate)
-			window.addEventListener('replaceState',listenerSate)
+
+			window.addEventListener('pushState', listenerSate)
+			window.addEventListener('replaceState', listenerSate)
+
+			if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+				const _getUserMedia = navigator.mediaDevices.getUserMedia
+				navigator.mediaDevices.getUserMedia = function() {
+					$websiteStatistics.addCamera()
+					if (!confirm('当前网页正在访问相机！\n The current page is accessing the camera!')) {
+						return
+					}
+					return _getUserMedia.apply(this, arguments)
+				}
+			}
 
 			// 打开系统播放器
 			/**
@@ -489,7 +510,7 @@ try {
 
 
 				let hostname = getHostname();
-				
+
 				let Alinks = document.querySelectorAll('a')
 
 

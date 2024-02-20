@@ -34,6 +34,12 @@
 				</view>
 			</uni-grid-item>
 			<uni-grid-item>
+				<view class="item" @click.stop="change(menuType.ysmode)">
+					<text class="cc-font icon">&#xe662;</text>
+					<text class="itme-text">{{!privacyMode?$t('moremenu.open.nolist'):$t('moremenu.close.nolist')}}</text>
+				</view>
+			</uni-grid-item>
+			<uni-grid-item>
 				<view class="item" @click.stop="change(menuType.tools)">
 					<text class="cc-font icon">&#xe6fa;</text>
 					<text class="itme-text">{{$t('main.tips.10')}}</text>
@@ -89,6 +95,7 @@
 		data() {
 			return {
 				read: false,
+				privacyMode:false,
 				menuType: {
 					collect: 1, //收藏
 					bookmark: 2, //书签
@@ -98,13 +105,15 @@
 					tools: 6, //工具
 					extension: 7, //扩展
 					more: 8, //更多设置
-					res: 9
+					res: 9,
+					ysmode:10, //隐私模式
 				}
 			};
 		},
 		created() {
 			const settingConfig = app.globalData.webview.Setting.settingConfig;
 			setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+			this.privacyMode = app.globalData.webview.History.privacyMode;
 			_self = this;
 		},
 		mounted() {
@@ -181,6 +190,9 @@
 						// 	url: '/pages/web-log/web-log'
 						// })
 						break;
+					case this.menuType.ysmode:
+					this.privacyMode = app.globalData.webview.History.privacyMode = !app.globalData.webview.History.privacyMode
+					break;
 				}
 
 			}

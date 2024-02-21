@@ -773,10 +773,13 @@ require(['jquery'], function ($) {
 		}
 	});
 
-	$(".search-input").keydown(function (evt) {
-		// 使用回车键进行搜索
-		evt.keyCode === 13 && $(".search-btn").click();
-	});
+	// $(".search-input").keydown(function (evt) {
+	// 	// 使用回车键进行搜索
+	// 	evt.keyCode === 13 && $(".search-btn").click();
+	// });
+	$(".search-input").change(function(){
+		$(".search-btn").click();
+	})
 
 	// 识别浏览器
 	var browserInfo = function () {

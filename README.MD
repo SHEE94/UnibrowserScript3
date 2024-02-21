@@ -12,6 +12,9 @@
 
 如果支持作者，可以点击一下广告，算是让作者有继续写下去的动力。
 
+## 体验
+最新体验安装包 [UnibrowserScript3](https://github.com/SHEE94/UnibrowserScript3/releases)
+
 ## 联系作者
 
  如果想请作者喝杯咖啡可以加作者QQ：549859890

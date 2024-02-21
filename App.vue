@@ -94,6 +94,7 @@
 			// this.globalData.webview.plusInstall(violentmonkey)
 			// 安装工具插件
 			this.globalData.webview.plusInstall(Tools)
+			// this.globalData.webview.plusInstall(Tools)
 			const domModule = uni.requireNativePlugin('dom');
 			domModule.addRule('fontFace', {
 				fontFamily: 'ccfffasd',

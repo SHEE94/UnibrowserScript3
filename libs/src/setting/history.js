@@ -61,7 +61,10 @@ export default class History {
 			})
 		}
 	}
-
+	
+	/**
+	 * @param {Boolean} val 
+	 */
 	set privacyMode(val) {
 		this.wv.state.data.privacyMode = val;
 	}

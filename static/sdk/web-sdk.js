@@ -421,19 +421,21 @@ try {
 			const _appendChild = HTMLElement.prototype.appendChild
 			if (!setting.nonstandardTag) {
 				let nodelist =
-					'tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br';
+					'meta,base, tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br,#text,#comment';
 
 				HTMLElement.prototype.appendChild = function(node) {
-					let tagname = node.tagName
+					let tagname = node.tagName||node.nodeName
+					
 					if (typeof tagname == 'undefined' || !nodelist.includes(tagname.toLocaleLowerCase())) {
+						
 						return null;
 					}
 
-					if (tagname.toLocaleLowerCase() == 'video') {
-						node.setAttribute('controls', 'controls')
-						node.setAttribute('autoplay', false);
-						return _appendChild.apply(this, arguments);
-					}
+					// if (tagname.toLocaleLowerCase() == 'video') {
+					// 	node.setAttribute('controls', 'controls')
+					// 	node.setAttribute('autoplay', false);
+					// 	return _appendChild.apply(this, arguments);
+					// }
 
 					if (tagname.toLocaleLowerCase() == 'script') {
 						$websiteStatistics.addScript()

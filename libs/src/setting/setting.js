@@ -152,7 +152,7 @@ class Setting {
 											if (res.tapIndex == 0) {
 												blacklist.push(getStrOrigin(
 													url))
-												this.state.data.blackUrls =
+												this.wv.state.data.blackUrls =
 													blacklist;
 											} else if (res.tapIndex == 1) {
 												this.wv.openNewWindow(url)
@@ -499,14 +499,12 @@ class Setting {
 		})
 	}
 
-
-
 	/**
 	 * 重置
 	 */
 	reset() {
 		uni.removeStorageSync('settingConfig');
-		this._settingConfig = settingConfig;
+		this.settingConfig = settingConfig;
 	}
 	get settingConfig() {
 		return this.wv.state.data.settingConfig || this._settingConfig;

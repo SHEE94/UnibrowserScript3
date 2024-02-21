@@ -70,6 +70,8 @@ class WebView extends EventEmitter {
 			})
 		}
 
+		this.state.data.Plugins = []
+
 		this.parent = null;
 
 		this.height = system.screenHeight - system.statusBarHeight - 44;
@@ -107,7 +109,7 @@ class WebView extends EventEmitter {
 				}
 			}
 		});
-		
+
 		// uni.onKeyboardHeightChange((res)=>{
 		// 	let height = res.height;
 		// 	console.log(height)
@@ -117,7 +119,7 @@ class WebView extends EventEmitter {
 		// 		this.full = false;
 		// 	}
 		// })
-		
+
 	}
 
 	setStyle(style) {
@@ -193,7 +195,7 @@ class WebView extends EventEmitter {
 	 * @param {Object} id 窗口id
 	 */
 	closeWindow(id) {
-		
+
 		_webviews.forEach((item, index) => {
 			if (item.id == id) {
 				item.removeFromParent()
@@ -340,13 +342,13 @@ class WebView extends EventEmitter {
 				})
 			}, 1000)
 		})
-		wv.addEventListener('rendering',()=>{
+		wv.addEventListener('rendering', () => {
 			this.emit(EVENT_TYPE['loading'], wv)
 			wv.allRes = [];
 		})
 
 		wv.addEventListener('loading', () => {
-			
+
 			wv.allRes = [];
 			this.emit(EVENT_TYPE['loading'], wv)
 		})
@@ -358,10 +360,10 @@ class WebView extends EventEmitter {
 
 
 	}
-	
 
-	
-	getStrOrigin(val){
+
+
+	getStrOrigin(val) {
 		let text = '';
 		if (val && typeof val === 'string') {
 			const reg = /((https|http|ftp|file):\/\/)([A-Za-z0-9\-.]+)(:[0-9]+){0,1}/g;
@@ -372,44 +374,44 @@ class WebView extends EventEmitter {
 		}
 		return text;
 	}
-	
+
 	/**
 	 * 将网页安装为app
 	 */
-	installWebapp(options){
-		if(!options){
+	installWebapp(options) {
+		if (!options) {
 			options = {
-				name:this.activeWebview.getTitle(),
-				icon:this.getIco(),
-				toast:'',
-				extra:{
-					'url':this.getURL()
+				name: this.activeWebview.getTitle(),
+				icon: this.getIco(),
+				toast: '',
+				extra: {
+					'url': this.getURL()
 				}
 			}
 		}
-		plus.navigator.createShortcut(options,(e)=>{
-			const sure=e.sure;
-			if(e.sure){
+		plus.navigator.createShortcut(options, (e) => {
+			const sure = e.sure;
+			if (e.sure) {
 				uni.showToast({
-					icon:'success',
-					title:'创建成功'
+					icon: 'success',
+					title: '创建成功'
 				})
-			}else{
+			} else {
 				uni.showToast({
-					icon:'error',
-					title:'创建失败'
+					icon: 'error',
+					title: '创建失败'
 				})
 			}
 		});
 	}
-	
-	getIco(){
+
+	getIco() {
 		const activeWeview = this.checkedActiveWebview();
-		return this.getStrOrigin(activeWeview.getURL())+'/favicon.ico';
+		return this.getStrOrigin(activeWeview.getURL()) + '/favicon.ico';
 	}
-	
+
 	/**
-	 * 获取cookie
+	 * 设置cookie
 	 * @param {String} name
 	 * @param {String} value
 	 * @param {Number} days
@@ -432,7 +434,7 @@ class WebView extends EventEmitter {
 	}
 
 	/**
-	 * 设置cookie
+	 * 获取cookie
 	 * @param {Object} url 获取cookie的地址，默认当前网页
 	 * @param {Object} id 获取指定webview窗口
 	 */
@@ -519,8 +521,19 @@ class WebView extends EventEmitter {
 	 * @param {Object} p
 	 */
 	plusInstall(plusFunc) {
-		if (typeof plusFunc !== 'function') return;
+		if (typeof plusFunc !== 'function' && typeof plusFunc !== 'object') return;
+		let Plugins = this.state.data.Plugins||[];
+		if (Plugins.indexOf(plusFunc) > -1) {
+			console.warn('Plug-in installed')
+			return;
+		}
+		if (typeof plusFunc === 'object' && typeof plusFunc.install === 'function') {
+			plusFunc.install(this)
+			return;
+		}
 		plusFunc(this)
+		Plugins.push(plusFunc)
+		this.state.data.Plugins = Plugins
 	}
 	/**
 	 * @description 设置当前活动的webview
@@ -651,5 +664,5 @@ export {
 	Setting,
 	Tools,
 	ScriptExtension,
-	Violentmonkey
+	Violentmonkey,EVENT_TYPE,ACTION_TYPR
 }

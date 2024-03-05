@@ -293,14 +293,14 @@ body,html {
 }
 .bottom-row{
 	position: absolute;
-	bottom: 0;
+	/* bottom: 0; */
 	width: 100%;
 	background: #fff;
 	overflow: visible;
 }
 .suggestion, .history{overflow:auto;width:100%;
-	max-height: calc(100% - 122px);
-	bottom: 122px;
+	max-height: calc(100% - 152px);
+	top: 122px;
 	position: absolute;
 }
 .history{

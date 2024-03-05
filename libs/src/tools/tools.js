@@ -13,30 +13,37 @@ import {
 	ACTION_TYPR
 } from '../../tools/types.js'
 import AD from './ad.js';
+import websiteSetting from '../../config/websiteSetting.js'
 let $statistics = {}
 class Tools {
 	constructor(wv) {
 		this.wv = wv;
-		this.websiteSetting = {
-			videoPLay: false, //外部播放器打开
-			redirect: true, //是允许重定向
-			clipboard: true, //访问剪切板
-			location: false,
-			cookies: false,
-			clipboard: true, //访问剪切板
-			timer: true, //使用定时器
-			addScript: true, //动态添加脚本
-			nonstandardTag: true, //添加非标准节点
-			otherWebsite: false, //跳转第三方网站
-			fingerprint: false, //指纹追踪
-			autoDownload: false, //自动下载
-			dev: false, //开发者模式
-			additionalHttpHeaders: '{}'
-		}
+		this.websiteSetting = JSON.parse(JSON.stringify(websiteSetting))
 
+		this._websiteSetting = uni.getStorageSync('websiteSetting') || {};
+		this.wv.state.setData({
+			websiteSetting: this._websiteSetting,
+			defaultWebsiteSetting: this.websiteSetting
+		})
 		this.eventListener()
 	}
+	/**
+	 * 网页单独配置
+	 */
+	get websiteSettingConfig() {
+		return this.wv.state.data.websiteSetting;
+	}
 
+	/**
+	 * @param {Object} val {url:{...},url2:{...},url3:{...}}
+	 */
+	set websiteSettingConfig(val) {
+		this.wv.state.data.websiteSetting = val;
+		uni.setStorage({
+			key: 'websiteSetting',
+			data: val
+		})
+	}
 	encrypt = {
 		// 加密
 		/**
@@ -86,7 +93,7 @@ class Tools {
 				this.statistics = json.data;
 			}
 		})
-
+		
 	}
 
 
@@ -95,9 +102,6 @@ class Tools {
 	 */
 	sendStatisticsInfo() {
 		const actionWV = this.wv.checkedActiveWebview()
-		// let link = actionWV.getURL().split('//')
-		// let hostname = link[1].split('/')[0]
-
 		actionWV.evalJS('window.sendStatics()')
 	}
 

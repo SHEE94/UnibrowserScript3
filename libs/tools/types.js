@@ -9,7 +9,9 @@ export const EVENT_TYPE = {
 	'loading':'e8',//网页加载
 	'ACTIVE-WEBVIEW':'e9',//活动窗口变化
 	'VIDEO-RES':'e10', //
-	'WEBVIEW-RESOURCE':'e11'
+	'WEBVIEW-RESOURCE':'e11',
+	'rendering':'e12',
+	'loaded':'e13',
 }
 
 export const ACTION_TYPR = {

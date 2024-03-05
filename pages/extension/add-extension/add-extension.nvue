@@ -1,0 +1,192 @@
+<template>
+	<view class="add-extension-container">
+		<view class="extension-item-content">
+			<view class="cell">
+				<text class="label">扩展名称</text>
+				<input type="text" class="enter-text" placeholder="填写脚本名称" v-model="name" />
+			</view>
+
+			<view class="cell">
+				<text class="label">扩展简介</text>
+				<input type="text" class="enter-text" placeholder="扩展脚本介绍" v-model="description" />
+			</view>
+
+			<view class="cell">
+				<text class="label">匹配地址</text>
+				<input type="text" class="enter-text" placeholder="多匹配值使用@@分隔,支持正则" v-model="match" />
+			</view>
+
+			<view class="cell">
+				<text class="label">加载时机</text>
+				<picker mode="selector" :range="executionName" range-key="name" @change="changeexecution">
+					<text class="right-text">{{executionName[this.executionType].name}}</text>
+				</picker>
+			</view>
+
+			<view class="cell">
+				<text class="label">添加本地脚本文件</text>
+				<navigator url="/pages/FM/FM">
+					<text v-if="files.length == 0" class="right-text">添加外部文件</text>
+					<view v-if="files.length" >
+						<text class="right-text" v-for="(item,index) in files">{{item.filename}}</text>
+					</view>
+
+				</navigator>
+			</view>
+
+			<view class="content">
+				<web-view src="/static/html/codeedit/index.html" class="code-edit" ref="webview"
+					@onPostMessage="handlePostMessage"></web-view>
+			</view>
+
+			<button type="primary" size="mini" class="save" @click="save">保存</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	const app = getApp()
+	export default {
+		data() {
+			return {
+				name: '',
+				id: null,
+				code: '',
+				description: '',
+				files: [],
+				match: '',
+				executionName: [{
+					name: '尽早',
+					val: 0
+				}, {
+					name: '页面加载时',
+					val: 1
+				}, {
+					name: '页面加载完成',
+					val: 2
+				}],
+				executionType: 2
+			};
+		},
+		onLoad(options) {
+			this.id = options.id;
+			let scriptItem = app.globalData.webview.ScriptExtension.scripts.find(item => item.id == this.id);
+			if (scriptItem) {
+				this.name = scriptItem.name;
+				this.code = scriptItem.codeText;
+				this.executionType = scriptItem.execution;
+				this.description = scriptItem.description;
+				this.match = scriptItem.match;
+				this.files = scriptItem.scriptPath||[];
+				console.log(this.code)
+				setTimeout(() => {
+					this.$refs.webview.evalJs(`window.setCode(\`${encodeURIComponent(this.code)}\`)`)
+				}, 500)
+			}
+
+			uni.$on('_singlefile', (arr) => {
+				console.log(arr)
+				this.files = arr;
+			});
+		},
+		methods: {
+			
+			handlePostMessage(e) {
+				
+				let data = e.detail.data[0];
+				this.code = data.script;
+			},
+			changeexecution(e) {
+				console.log(e.detail.value)
+				this.executionType = e.detail.value;
+			},
+			save() {
+				if (!this.name) {
+					uni.showToast({
+						title: '请填写扩展名',
+						icon: "none"
+					})
+					return;
+				}
+				this.$refs.webview.evalJs('window.save()')
+				uni.showLoading({
+					title: '正在保存'
+				})
+				setTimeout(() => {
+					if (this.id) {
+						let sc = app.globalData.webview.ScriptExtension.update({
+							id: this.id,
+							name: this.name,
+							codeText: this.code,
+							enable: false,
+							description: this.description,
+							execution: this.executionType,
+							match: this.match,
+							scriptPath: this.files
+						})
+						console.log(sc)
+					} else {
+						app.globalData.webview.ScriptExtension.scripts = {
+							name: this.name,
+							codeText: this.code,
+							enable: false,
+							description: this.description,
+							execution: this.executionType,
+							match: this.match,
+							scriptPath: this.files
+						}
+					}
+					uni.hideLoading()
+					uni.showToast({
+						icon: 'success',
+						title: '保存成功'
+					})
+				}, 1000)
+
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.extension-item-content {
+		.cell {
+			flex-direction: row;
+			align-items: center;
+			padding: 5px 15px;
+			background-color: #eee;
+			margin-bottom: 15px;
+
+			.label {
+				flex: 2;
+				font-size: 15px;
+			}
+
+			.enter-text {
+				font-size: 15px;
+				flex: 8;
+				height: 40px;
+			}
+		}
+
+		.content {
+			background: #ccc;
+
+			.code-edit {
+				flex: 1;
+				height: 600px;
+			}
+		}
+
+		.save {
+			width: 150px;
+			margin: 20px;
+		}
+		.right-text{
+			font-size: 15px;
+			color:#515151;
+			
+			
+		}
+	}
+</style>

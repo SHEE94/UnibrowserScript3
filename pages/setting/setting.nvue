@@ -124,15 +124,15 @@
 </template>
 
 <script>
-/**
- *@description: 设置
- *@author: Xianxu
- *@date: 2024-02-02
- *@version: 3.0
- *@Copyright: Xianxu
- *@LastEditors: Xianxu
- *@LastEditTime: 2024-02-02
- */
+	/**
+	 *@description: 设置
+	 *@author: Xianxu
+	 *@date: 2024-02-02
+	 *@version: 3.0
+	 *@Copyright: Xianxu
+	 *@LastEditors: Xianxu
+	 *@LastEditTime: 2024-02-02
+	 */
 
 	import {
 		initVueI18n,
@@ -191,8 +191,8 @@
 					{
 						icon: 'icon-shuqian',
 						name: 'moremenu.extend',
-						to: '/pages/tools/tools',
-						key: '/pages/tools/tools'
+						to: '/pages/extension/extension',
+						key: 'extension'
 					},
 					// {
 					// 	icon: 'icon-shuqian',
@@ -224,7 +224,7 @@
 			}
 			this.webview = app.globalData.webview;
 			let settingConfig = this.webview.Setting.settingConfig // uni.getStorageSync('settingConfig');
-			
+
 			if (settingConfig) {
 				this.settingConfig = {
 					...this.settingConfig,
@@ -234,7 +234,7 @@
 			}
 		},
 		onShow() {
-			let settingConfig = this.webview.Setting.settingConfig//uni.getStorageSync('settingConfig');
+			let settingConfig = this.webview.Setting.settingConfig //uni.getStorageSync('settingConfig');
 			if (settingConfig) {
 				this.settingConfig = settingConfig;
 				// uni.removeStorageSync('settingConfig')
@@ -252,7 +252,7 @@
 				this.webview.Setting.reset()
 				this.settingConfig = this.webview.Setting.settingConfig;
 				uni.removeStorage({
-					key:'homepageList'
+					key: 'homepageList'
 				})
 				uni.showToast({
 					icon: 'success',
@@ -264,7 +264,14 @@
 				}, 1500);
 			},
 			clear() {
-				uni.$emit('CLEAR-CACHE');
+				this.webview.activeWebview.evalJS(`
+									localStorage.clear();
+									var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+									if (keys) {
+										for (var i = keys.length; i--;) {
+											document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString();
+										}
+									};`);
 				uni.showToast({
 					icon: 'success',
 					title: this.$t("setting.cleared")

@@ -6,11 +6,11 @@
 ## 构建方式
 使用HBuildx构建应用进行安装.
 
-## 其他
+## 文档
 
-文档还没写好，3.0全新重构，等有时间在补上开发文档，2.0地址 [GITHUB源码](https://github.com/SHEE94/unibrowser)。
+[开发文档地址](https://github.com/SHEE94/UnibrowserCore/wiki)。
 
-如果支持作者，可以点击一下广告，算是让作者有继续写下去的动力。
+如果支持作者，可以点击一下广告，算是让作者有继续更新的动力。
 
 ## 体验
 最新体验安装包 [UnibrowserScript3](https://github.com/SHEE94/UnibrowserScript3/releases)

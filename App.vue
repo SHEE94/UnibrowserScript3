@@ -2,7 +2,8 @@
 	import {
 		WebView,
 		Setting,
-		Tools
+		Tools,
+		ScriptExtension
 	} from '@/libs/browser.core.js'
 
 
@@ -94,7 +95,7 @@
 			// this.globalData.webview.plusInstall(violentmonkey)
 			// 安装工具插件
 			this.globalData.webview.plusInstall(Tools)
-			// this.globalData.webview.plusInstall(Tools)
+			this.globalData.webview.plusInstall(ScriptExtension)
 			const domModule = uni.requireNativePlugin('dom');
 			domModule.addRule('fontFace', {
 				fontFamily: 'ccfffasd',

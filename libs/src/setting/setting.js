@@ -24,9 +24,8 @@ import {
 	EVENT_TYPE
 } from '../../tools/types.js'
 import SettingConfig from '../../config/settingConfig.js'
-
+import websiteSetting from '../../config/websiteSetting.js'
 const settingConfig = JSON.parse(JSON.stringify(SettingConfig))
-
 const ua =
 	'Mozilla/5.0 (Linux; Android; V1923A Build/N2G47O; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/68.0.3440.70 Mobile Safari/537.36 SCRIPT/3.0';
 
@@ -39,9 +38,10 @@ class Setting {
 		this.wv = wv;
 		_self = this;
 		this._settingConfig = uni.getStorageSync('settingConfig') || settingConfig;
+
 		// 初始化设置状态
 		this.wv.state.setData({
-			settingConfig: this._settingConfig
+			settingConfig: this._settingConfig,
 		})
 		this.full = false;
 		this.wvSettingEvent();
@@ -96,8 +96,12 @@ class Setting {
 
 				})
 			}
+			// 获取网页单独设置信息
+			let websiteSettingConfig = this.websiteSettingConfig(activeWebview.getURL());
+
 			let loadingOverri = true;
-			if (this.settingConfig.otherWebsite) {
+			// 开启跳转第三方网址
+			if (this.settingConfig.otherWebsite || websiteSettingConfig.otherWebsite) {
 				const getStrOrigin = (val) => {
 					let text = '';
 					if (val && typeof val === 'string') {
@@ -117,6 +121,7 @@ class Setting {
 					if (!this.overrideUrl(this.wv, url)) {
 						return;
 					}
+
 					let reg = new RegExp('^(http|file|ftp|blob|ws|wss).*', 'g')
 					if (!reg.test(url)) {
 						this.wv.emit('overrideUrlLoading', url);
@@ -129,44 +134,49 @@ class Setting {
 						overrideUrlLoading()
 						this.wv.loadURL(url)
 					} else {
-
+						// 黑名单网址
 						for (let i of blacklist) {
-							let reg = new RegExp(i,'g')
+							let reg = new RegExp(i, 'g')
 							if (reg.test(url)) {
 								return;
 							}
 						}
+						// 确认跳转第三方网址
+						const confirm = (res) => {
+							if (res.confirm) {
+								overrideUrlLoading(true);
+								this.wv.loadURL(url);
+							} else {
+								uni.showActionSheet({
+									itemList: [t('setting.black.title'), t(
+										'history.tips.3'), t(
+										'history.tips.4')],
+									success: (res) => {
+										if (res.tapIndex == 0) {
+											blacklist.push(getStrOrigin(
+												url))
+											this.wv.state.data.blackUrls =
+												blacklist;
+										} else if (res.tapIndex == 1) {
+											this.wv.openNewWindow(url)
+										} else if (res.tapIndex == 2) {
+											this.wv.openBGWindow(url)
+										}
+									}
+								})
+							}
+						}
+
 						uni.showModal({
 							title: t('browser.tips.10'),
 							content: `${t('privacy.otherWebsite')}: ${url}`,
 							success: (res) => {
-								if (res.confirm) {
-									overrideUrlLoading(true);
-									this.wv.loadURL(url);
-								} else {
-									uni.showActionSheet({
-										itemList: [t('setting.black.title'), t(
-											'history.tips.3'), t(
-											'history.tips.4')],
-										success: (res) => {
-											if (res.tapIndex == 0) {
-												blacklist.push(getStrOrigin(
-													url))
-												this.wv.state.data.blackUrls =
-													blacklist;
-											} else if (res.tapIndex == 1) {
-												this.wv.openNewWindow(url)
-											} else if (res.tapIndex == 2) {
-												this.wv.openBGWindow(url)
-											}
-										}
-									})
-								}
+								confirm(res)
 							}
 						})
 					}
 				})
-			} else {
+			} else if (!this.settingConfig.otherWebsite || !websiteSettingConfig.otherWebsite) {
 
 				this.wv.activeWebview.overrideUrlLoading({}, (e) => {
 					let url = e.url;
@@ -174,7 +184,7 @@ class Setting {
 						return;
 					}
 					for (let i of blacklist) {
-						let reg = new RegExp(i,'g')
+						let reg = new RegExp(i, 'g')
 						if (reg.test(url)) {
 							return;
 						}
@@ -216,7 +226,7 @@ class Setting {
 			}
 		}
 
-
+		// 后台窗口休眠
 		this.wv.state.getData('settingConfig', (config) => {
 			dormancy()
 		})
@@ -226,16 +236,29 @@ class Setting {
 				this.saveLastPageInfo(activeWebview)
 			})
 		}
-		
-		this.wv.state.getData('activeWebview',(activeWebview)=>{
-			if(!activeWebview)return;
+		// 定位权限
+		this.wv.state.getData('activeWebview', (activeWebview) => {
+			if (!activeWebview) return;
 			let nwv = activeWebview.nativeInstanceObject();
 			if (this.settingConfig.location && uni.getSystemInfoSync().osName == 'android') {
 				plus.android.invoke(nwv, 'setGeolocationEnabled', true);
-			} else {
+			} else if(!this.settingConfig.location && uni.getSystemInfoSync().osName == 'android') {
 				plus.android.invoke(nwv, 'setGeolocationEnabled', false);
 			}
 		})
+	}
+
+	websiteSettingConfig(url) {
+		let websiteSettingConfig = this.wv.state.data.websiteSetting;
+		if(!url){
+			return websiteSettingConfig;
+		}
+		for (let key in websiteSettingConfig) {
+			if (url.indexOf(key) > -1) {
+				return websiteSettingConfig[key] || websiteSetting;
+			}
+		}
+		return websiteSetting;
 	}
 
 	/**
@@ -413,9 +436,7 @@ class Setting {
 			this.readMode(this.wv.activeWebview)
 		})
 
-		
 	}
-
 
 	/**
 	 * 阅读模式
@@ -506,33 +527,36 @@ class Setting {
 		uni.removeStorageSync('settingConfig');
 		this.settingConfig = settingConfig;
 	}
+	/**
+	 * 获取设置配置
+	 */
 	get settingConfig() {
 		return this.wv.state.data.settingConfig || this._settingConfig;
 	}
 	set settingConfig(val) {
 
-		if (typeof val !== 'object') return;
-		Object.keys(val).forEach(key => {
-			if (Reflect.has(this._settingConfig, key)) {
-				this._settingConfig[key] = val[key]
-			}
-		})
-		this._settingConfig.defaultHome.parent = null;
+		const config = this.settingEvent('settingConfig', val)
+		this.wv.state.data.settingConfig = config;
+
 		uni.setStorage({
 			key: 'settingConfig',
-			data: this._settingConfig
+			data: config
 		})
+	}
 
-		// 保存设置状态
-		this.wv.state.data.settingConfig = this._settingConfig
-
+	settingEvent(configKey, val) {
+		if (typeof val !== 'object') return;
+		Object.keys(val).forEach(key => {
+			if (Reflect.has(this['_' + configKey], key)) {
+				this['_' + configKey][key] = val[key]
+			}
+		})
+		this['_' + configKey].defaultHome.parent = null;
+		return this['_' + configKey];
 	}
 }
 
-
-
 export default function install(wv) {
-
 	wv.Bookmark = new Bookmark(wv)
 	wv.History = new History(wv)
 	wv.Setting = new Setting(wv)

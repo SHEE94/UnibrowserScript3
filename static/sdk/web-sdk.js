@@ -1,4 +1,6 @@
 "use strict";
+
+
 try {
 	(function() {
 		const startTime = Date.now()
@@ -421,7 +423,7 @@ try {
 			const _appendChild = HTMLElement.prototype.appendChild
 			if (!setting.nonstandardTag) {
 				let nodelist =
-					'meta,base, tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br,#text,#comment';
+					'meta,base,button,textarea,pre,head,audio,html,svg,tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br,#text,#comment';
 
 				HTMLElement.prototype.appendChild = function(node) {
 					let tagname = node.tagName||node.nodeName
@@ -611,6 +613,7 @@ try {
 			 */
 			function getActionNodes(x, y) {
 				let nodes = document.elementsFromPoint(x, y)
+				if(!nodes)return [];
 				let tages = []
 				for (let i = 0, len = nodes.length; i < len; i++) {
 					if (actionTag.includes(nodes[i].tagName)) {

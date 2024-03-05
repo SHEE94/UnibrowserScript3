@@ -1,0 +1,175 @@
+<template>
+	<view class="extension">
+		<view class="btns">
+			<button size="mini" class="add" @click="add">添加扩展</button>
+			<button size="mini" class="add" @click="remove">删除所有扩展</button>
+		</view>
+
+		<view class="list">
+			<view class="list-item" v-for="(item,index) in scripts" @click="editmune(item)" :key="item.id">
+				<view class="left-info">
+					<text class="label">{{item.name}}</text>
+					<text class="desc">{{item.description}}</text>
+				</view>
+				<view class="arr">
+					<switch size="mini" :checked="item.enable" @change="change($event,index)" />
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
+	const app = getApp();
+	const settingConfig = app.globalData.webview.Setting.settingConfig
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+	export default {
+		data() {
+			return {
+				scripts: []
+			};
+		},
+		onShow() {
+			this.scripts = app.globalData.webview.ScriptExtension.scripts
+		},
+		methods: {
+			$t: t,
+			add() {
+				uni.navigateTo({
+					url: './add-extension/add-extension'
+				})
+				// uni.showActionSheet({
+				// 	itemList: ['主动扩展', '被动扩展'],
+				// 	success: (res) => {
+				// 		let index = res.tapIndex;
+				// 		uni.navigateTo({
+				// 			url: './add-extension/add-extension?index=' + index
+				// 		})
+				// 	}
+				// })
+			},
+			change(event, index) {
+				// let scripts = this.scripts;
+				this.scripts[index].enable = event.detail.value;
+
+				app.globalData.webview.state.setData({
+					scripts: this.scripts
+				})
+			},
+			remove() {
+				uni.showModal({
+					title: '警告',
+					content: '确认删除所有扩展？',
+					success: (res) => {
+						if (res.confirm) {
+							app.globalData.webview.ScriptExtension.clear()
+							this.scripts = []
+						}
+					}
+				})
+
+			},
+			editmune(item) {
+				const id = item.id;
+				uni.showActionSheet({
+					itemList: ['编辑', '分享', '删除'],
+					success: (res) => {
+						if (res.tapIndex == 0) {
+							uni.navigateTo({
+								url: './add-extension/add-extension?id=' + id
+							})
+						} else if (res.tapIndex == 1) {
+							uni.setClipboardData({
+								data: item.codeText,
+								success() {
+									uni.showToast({
+										title: '已添加到剪切板'
+									})
+								},
+								fail() {
+									uni.showToast({
+										title: '分享失败',
+										icon: 'error'
+									})
+								}
+							})
+
+						} else if (res.tapIndex == 2) {
+							this.script = app.globalData.webview.ScriptExtension.del(id)
+
+						}
+					}
+				})
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.extension {
+		padding: 15px;
+
+		.btns {
+			flex-direction: row;
+		}
+
+		.add {
+			width: 100px;
+			margin-right: 15px;
+		}
+
+		.list {
+			margin-top: 15px;
+
+			.list-item {
+				display: flex;
+				flex-direction: row;
+				margin-bottom: 5px;
+				align-items: center;
+				justify-content: space-between;
+				padding: 5px 10px;
+				border-bottom: 1px solid #eeeeee;
+
+				.left-info {
+
+					.icon {
+						margin-right: 5px;
+						font-size: 15px;
+						margin-bottom: -2px;
+					}
+				}
+
+				.label {
+					color: #515151;
+					font-size: 15px;
+				}
+
+				.arr {
+					display: flex;
+					justify-content: flex-end;
+					// width: 100px;
+					font-size: 15px;
+				}
+			}
+		}
+
+		.desc {
+			font-size: 12px;
+			color: #999;
+			text-overflow: ellipsis;
+			width: 300px;
+			height: 15px;
+			overflow: hidden;
+		}
+	}
+</style>

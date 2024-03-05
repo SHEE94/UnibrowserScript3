@@ -186,12 +186,15 @@
 						subNVue.show('', 0, function() {
 							uni.$emit('open-menu', 4);
 						});
-						// uni.navigateTo({
-						// 	url: '/pages/web-log/web-log'
-						// })
+						
 						break;
 					case this.menuType.ysmode:
 					this.privacyMode = app.globalData.webview.History.privacyMode = !app.globalData.webview.History.privacyMode
+					break;
+					case this.menuType.extension:
+						uni.navigateTo({
+							url:'/pages/extension/extension'
+						})
 					break;
 				}
 

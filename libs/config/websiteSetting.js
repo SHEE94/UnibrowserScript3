@@ -22,5 +22,6 @@ export default {
 	fingerprint: false, //指纹追踪
 	autoDownload:false, //自动下载
 	dev:false ,//开发者模式
+	otherRes:false, //是否拦截第三方资源
 	additionalHttpHeaders:'{}'
 }

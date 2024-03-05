@@ -46,10 +46,10 @@
 		</view>
 		<view class="item">
 			<text class="title font24">{{$t('webite.cookieTitle')}}：</text>
-			<textarea class="text font20 colorccc" :value="info.cookies"/>
-			
+			<textarea class="text font20 colorccc" :value="info.cookies" />
+
 		</view>
-		
+
 		<view class="website-setting">
 			<text class="website-setting-title">
 				{{$t("website.tips.1")}}
@@ -72,7 +72,7 @@
 						<switch :checked="settingConfig.videoPLay" data-type="videoPLay" @change="change" />
 					</view>
 				</view>
-				
+
 				<view class="list">
 					<view class="left-info">
 						<text class="label">{{$t("privacy.cookie")}}</text>
@@ -91,7 +91,9 @@
 				</view>
 				<view class="list">
 					<view class="left-info"><text class="label">{{$t('privacy.redirect')}}</text></view>
-					<view class="arr"><switch :checked="settingConfig.redirect" data-type="redirect" @change="change" /></view>
+					<view class="arr">
+						<switch :checked="settingConfig.redirect" data-type="redirect" @change="change" />
+					</view>
 				</view>
 				<view class="list">
 					<view class="left-info">
@@ -111,7 +113,7 @@
 						<switch :checked="settingConfig.addScript" data-type="addScript" @change="change" />
 					</view>
 				</view>
-				
+
 				<view class="list">
 					<view class="left-info">
 						<text class="label">{{$t('privacy.nonstandardTag')}}</text>
@@ -130,7 +132,7 @@
 						<switch :checked="settingConfig.fingerprint" data-type="fingerprint" @change="change" />
 					</view>
 				</view>
-				
+
 				<view class="list">
 					<view class="left-info">
 						<text class="label">{{$t('privacy.auto.download')}}</text>
@@ -140,8 +142,8 @@
 						<switch :checked="settingConfig.autoDownload" data-type="autoDownload" @change="change" />
 					</view>
 				</view>
-				
-				
+
+
 				<view class="list">
 					<view class="left-info">
 						<text class="label">{{$t('privacy.otherWebsite')}}</text>
@@ -151,7 +153,7 @@
 						<switch :checked="settingConfig.otherWebsite" data-type="otherWebsite" @change="change" />
 					</view>
 				</view>
-				
+
 				<!-- <view class="header-config">
 					<view class="left-info">
 						<view class="label">{{ $t("webite.additionalHttpHeaders") }}({{$t("website.tips.5")}})</view>
@@ -160,7 +162,7 @@
 						<textarea :value="settingConfig.additionalHttpHeaders" cols="30" rows="10" :placeholder='$t("website.tips.5")' @input="headerConfig"></textarea>
 					</view>
 				</view> -->
-				
+
 				<view class="list">
 					<view class="left-info">
 						<text class="label">Developer</text>
@@ -171,9 +173,9 @@
 				</view>
 			</view>
 		</view>
-		
+
 		<button class="reset" @click="reset">{{$t("website.tips.2")}}</button>
-		<button type="primary" @click="save">{{$t("bookmark.save")}}</button>
+		<!-- <button type="primary" @click="save">{{$t("bookmark.save")}}</button> -->
 	</view>
 </template>
 
@@ -183,63 +185,64 @@
 		I18n
 	} from '@dcloudio/uni-i18n'
 	import messages from '@/locale/index'
-	
+
 	const {
-		t,setLocale
+		t,
+		setLocale
 	} = initVueI18n(messages)
 	const app = getApp()
 	const websiteSetting = app.globalData.webview.Tools.websiteSetting;
-	const settingConfig = app.globalData.webview.Setting.settingConfig
+	let settingConfig = app.globalData.webview.Setting.settingConfig
 	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
 	export default {
 		data() {
 			return {
 				info: {},
-				settingConfig:JSON.parse(JSON.stringify(websiteSetting)),
+				settingConfig: JSON.parse(JSON.stringify(websiteSetting)),
 			};
 		},
-		
+
 		onLoad(options) {
-			
+
 			let info = app.globalData.webview.Tools.statistics;
 			this.info = info;
 			let host = this.info.host;
-			
+
 			uni.setNavigationBarTitle({
-				title:host
+				title: host
 			})
-			
-			let websiteSettingList = this.websiteSettingList = uni.getStorageSync('websiteSetting')||{};
-			
-			
-			let settingConfig = uni.getStorageSync('settingConfig');
-			
-			Object.keys(this.settingConfig).forEach(key=>{
-				Object.keys(settingConfig).forEach(key2=>{
-					if(key == key2){
+
+			let websiteSettingList = this.websiteSettingList = app.globalData.webview.Tools.websiteSettingConfig
+
+			Object.keys(this.settingConfig).forEach(key => {
+				Object.keys(settingConfig).forEach(key2 => {
+					if (key == key2) {
 						this.settingConfig[key] = settingConfig[key2]
 					}
 				})
 			})
-			
-			if(!websiteSettingList[host]){
+
+			if (!websiteSettingList[host]) {
 				websiteSettingList[host] = this.settingConfig;
-			}else{
+			} else {
 				this.settingConfig = websiteSettingList[host]
 			}
 
 		},
-		methods:{
-			$t:t,
-			save(){
-				
+		onHide() {
+			this.save()
+		},
+		onUnload() {
+			this.save()
+		},
+		methods: {
+			$t: t,
+			save() {
 				this.websiteSettingList[this.info.host] = this.settingConfig
-				uni.setStorageSync('websiteSetting',this.websiteSettingList)
-				uni.showToast({
-					icon:'success'
-				})
+				app.globalData.webview.Tools.websiteSettingConfig = this.websiteSettingList
+
 			},
-			headerConfig(e){
+			headerConfig(e) {
 				let val = e.detail.value;
 				this.settingConfig.additionalHttpHeaders = val;
 			},
@@ -248,10 +251,10 @@
 				let _type = e.currentTarget.dataset.type;
 				this.settingConfig[_type] = val
 			},
-			reset(){
+			reset() {
 				this.settingConfig = websiteSetting
 				uni.showToast({
-					title:this.$t("website.tips.3")
+					title: this.$t("website.tips.3")
 				})
 			}
 		}
@@ -259,15 +262,16 @@
 </script>
 
 <style lang="less">
-	
 	.content {
-		padding:10px;
+		padding: 10px;
+
 		.item {
 			flex-direction: row;
 			justify-content: center;
 			align-items: center;
 			padding: 15px 0;
 			border-bottom: 1px solid #f7f7f7;
+
 			.title {
 				flex: 5;
 				// font-size: 22px;
@@ -290,22 +294,27 @@
 				color: #008585;
 			}
 		}
-		.website-setting{
-			
+
+		.website-setting {
+
 			padding-top: 15px;
-			.website-setting-title{
+
+			.website-setting-title {
 				font-size: 20px;
-				
+
 			}
-			.header-config{
+
+			.header-config {
 				padding: 7px 10px;
 				background-color: #f7f7f7;
 				margin-bottom: 10px;
+
 				.left-info {
 					.desc {
 						font-size: 10px;
 						color: #999;
 					}
+
 					.icon {
 						margin-right: 5px;
 						font-size: 15px;
@@ -313,6 +322,7 @@
 					}
 				}
 			}
+
 			.list {
 				flex-direction: row;
 				margin-bottom: 10px;
@@ -320,34 +330,38 @@
 				justify-content: space-between;
 				padding: 7px 10px;
 				background-color: #f7f7f7;
-			
+
 				.left-info {
 					padding-left: 15px;
 					flex: 8;
+
 					.desc {
 						font-size: 10px;
 						color: #999999;
 					}
-			
+
 					.icon {
 						margin-right: 5px;
 						font-size: 15px;
 						margin-bottom: -2px;
 					}
 				}
-				.arr{
+
+				.arr {
 					flex: 2;
 					justify-content: flex-end;
 					align-items: flex-end;
 				}
-			
+
 			}
 		}
 	}
-	.reset{
+
+	.reset {
 		margin-bottom: 10px;
 	}
-	.colorccc{
+
+	.colorccc {
 		color: #999;
 		border: 1px solid #999999;
 		border-radius: 5px;

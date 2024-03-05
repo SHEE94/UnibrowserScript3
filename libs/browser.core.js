@@ -137,6 +137,19 @@ class WebView extends EventEmitter {
 		proc.data = val;
 	}
 
+	overrideResourceRequest(wv) {
+		this.state.getData('blackUrls', (val) => {
+			if (!val) return;
+			let matchArray = val.map(url => {
+				let obj = {
+					match: this.getStrOrigin(url) + '.*',
+					redirect: ''
+				}
+				return obj
+			})
+			wv.overrideResourceRequest(matchArray);
+		})
+	}
 
 	createWebview(item) {
 		if (!this._self || item.parent) {
@@ -166,12 +179,14 @@ class WebView extends EventEmitter {
 				.$getAppWebview();
 			currentWebview.append(wv);
 			wv.allRes = []
+			this.overrideResourceRequest(wv)
 			// this.setActive(wv.id)
 			this.addListener(wv)
 			this.webviews = wv;
 			this.emit(EVENT_TYPE['CREATE-WEBVIEW'], wv)
 			wv.hide()
 			res(wv);
+			
 		})
 	}
 
@@ -341,14 +356,15 @@ class WebView extends EventEmitter {
 					wv.img = res;
 				})
 			}, 1000)
+			this.emit(EVENT_TYPE['loaded'], wv)
 		})
 		wv.addEventListener('rendering', () => {
 			this.emit(EVENT_TYPE['loading'], wv)
+			this.emit(EVENT_TYPE['rendering'], wv)
 			wv.allRes = [];
 		})
 
 		wv.addEventListener('loading', () => {
-
 			wv.allRes = [];
 			this.emit(EVENT_TYPE['loading'], wv)
 		})
@@ -362,7 +378,10 @@ class WebView extends EventEmitter {
 	}
 
 
-
+	/**
+	 * 从字符串中获取域名
+	 * @param {String} val
+	 */
 	getStrOrigin(val) {
 		let text = '';
 		if (val && typeof val === 'string') {
@@ -522,7 +541,7 @@ class WebView extends EventEmitter {
 	 */
 	plusInstall(plusFunc) {
 		if (typeof plusFunc !== 'function' && typeof plusFunc !== 'object') return;
-		let Plugins = this.state.data.Plugins||[];
+		let Plugins = this.state.data.Plugins || [];
 		if (Plugins.indexOf(plusFunc) > -1) {
 			console.warn('Plug-in installed')
 			return;
@@ -664,5 +683,7 @@ export {
 	Setting,
 	Tools,
 	ScriptExtension,
-	Violentmonkey,EVENT_TYPE,ACTION_TYPR
+	Violentmonkey,
+	EVENT_TYPE,
+	ACTION_TYPR
 }

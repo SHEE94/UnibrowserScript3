@@ -23,3 +23,41 @@ export const uuid = (len, radix) => {
 
   return uuid.join('');
 }
+
+export const encrypt = {
+		// 加密
+		/**
+		 * 
+		 * @param {string} str 要加密的字符串
+		 * @param {string} key 密钥
+		 * @returns {string} 
+		 */
+		encrypt: function(str, key) {
+			let cipher = '';
+			for (let i = 0; i < str.length; i++) {
+				let char = str.charCodeAt(i);
+				let keyChar = key.charCodeAt(i % key.length);
+				cipher += String.fromCharCode(char + keyChar);
+			}
+			return encodeURI(cipher);
+		},
+		// 解密
+		/**
+		 * 
+		 * @param {string} str 要解密的字符串
+		 * @param {string} key 密钥
+		 * @returns {string}
+		 */
+		decrypt: function(str, key) {
+			str = decodeURI(str)
+			let decipher = '';
+			for (let i = 0; i < str.length; i++) {
+				let char = str.charCodeAt(i);
+				let keyChar = key.charCodeAt(i % key.length);
+				decipher += String.fromCharCode(char - keyChar);
+			}
+			return decipher;
+		}
+
+
+	}

@@ -6,8 +6,6 @@
 		ScriptExtension
 	} from '@/libs/browser.core.js'
 
-
-
 	// #ifdef APP
 	const main = plus.android.runtimeMainActivity()
 	const Intent = plus.android.importClass('android.content.Intent');
@@ -19,12 +17,11 @@
 	const getIntentData = (arg) => {
 		// #ifdef APP
 
-		const data = intent.getDataString()
-		if (data) {
-			arg = data
-		}
+		// const data = intent.getDataString()
+		// if (data) {
+		// 	arg = data
+		// }
 		// #endif
-
 		if (typeof arg == 'string') {
 			try {
 				arg = JSON.parse(arg);
@@ -42,18 +39,12 @@
 		if (typeof arg === 'string' && arg.length > 0) {
 			loadUrl = arg
 		}
-		if (oldURL == loadUrl) return;
-
+		if (oldURL === loadUrl) return;
 		webview.state.setData({
 			loadUrl: loadUrl
 		})
 		oldURL = loadUrl;
 	}
-
-	plus.globalEvent.addEventListener('newintent', (e) => {
-		main.setIntent(Intent)
-		getIntentData(plus.runtime.arguments)
-	})
 
 	export default {
 		globalData: {
@@ -81,6 +72,7 @@
 			}
 		},
 		onLaunch: function() {
+			
 			plus.android.requestPermissions(["android.permission.READ_CALENDAR",
 				"com.android.launcher.permission.INSTALL_SHORTCUT",
 				"android.permission.READ_EXTERNAL_STORAGE",
@@ -91,8 +83,7 @@
 
 			// 安装设置插件
 			this.globalData.webview.plusInstall(Setting)
-			// 安装暴力猴插件，这是个独立项目，当前项目中使用的代码为测试代码，请勿使用在正式环境中
-			// this.globalData.webview.plusInstall(violentmonkey)
+			
 			// 安装工具插件
 			this.globalData.webview.plusInstall(Tools)
 			this.globalData.webview.plusInstall(ScriptExtension)
@@ -105,6 +96,10 @@
 		},
 		onShow: function() {
 			console.log('App Show')
+			plus.globalEvent.addEventListener('newintent', (e) => {
+				// main.setIntent(Intent)
+				getIntentData(plus.runtime.arguments)
+			})
 			let arg = plus.runtime.arguments;
 			if (arg) {
 				getIntentData(arg)

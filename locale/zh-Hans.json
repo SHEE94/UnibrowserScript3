@@ -46,6 +46,7 @@
 	"setting.lastPage": "记录最后离开页面",
 	"setting.blank": "在新窗口打开页面",
 	"setting.homepage": "设置主页",
+	"setting.browser.name": "内核",
 	
 	
 	"weblog.override-resource": "查看已拦截的资源",
@@ -194,6 +195,7 @@
 	"menu.tips.2":"未获得授权",
 	"menu.tips.3":"文件保存路径",
 	"menu.installwebapp":"网页安装为应用",
+	"menu.open.iframe":"打开iframe",
 	
 	"bgwindow.open.window":"新建窗口",
 	"bgwindow.close.window":"关闭",

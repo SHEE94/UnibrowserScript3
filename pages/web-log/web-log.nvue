@@ -11,7 +11,7 @@
 		<view v-for="(item, index) in showRes" :key="index" class="list" :data-index="index" @tap="change"
 			@longpress="longchange">
 			<view style="color: #cc6666;">{{$t('weblog.type')}}：{{ item.type }}</view>
-			{{ item.url }}
+			<text class="desc">{{ item.url }}</text>
 		</view>
 	</view>
 </template>
@@ -161,26 +161,7 @@
 				uni.showLoading({
 					title: this.$t('weblog.tips.1')
 				})
-				// let that = this;
-				// uni.downloadFile({
-				// 	url,
-				// 	success(res) {
-				// 		let tempFilePath = res.tempFilePath
-				// 		uni.saveFile({
-				// 			tempFilePath: tempFilePath,
-				// 			success(e) {
-				// 				uni.hideLoading();
-				// 				let savedFilePath = e.savedFilePath;
-				// 				uni.showModal({
-				// 					content: that.$t('weblog.tips.2') + savedFilePath
-				// 				});
-				// 			},
-				// 			complete() {
-				// 				uni.hideLoading();
-				// 			}
-				// 		})
-				// 	}
-				// })
+				
 
 				var dtask = plus.downloader.createDownload(url, {
 					filename: '_downloads/'
@@ -240,16 +221,20 @@
 		left: 15px;
 		right: 15px;
 		padding: 0 15px;
-		border: 1px solid #ECAD9E;
+		border: 1px solid #515151;
 		text-align: center;
 	}
 
 	.list {
 
-		border-bottom: 1px solid #ECAD9E;
+		border-bottom: 1px solid #eeeeee;
 		padding: 7px 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		.desc{
+			font-size: 14px;
+			color: #666666;
+		}
 	}
 
 	.bar {

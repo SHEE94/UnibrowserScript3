@@ -1,5 +1,6 @@
 import {
-	uuid
+	uuid,
+	encrypt
 } from '../../tools/tools.js'
 let bookmarkList = uni.getStorageSync('bookmark') || []
 export default class Bookmark {
@@ -60,5 +61,9 @@ export default class Bookmark {
 		return bookmarkList.find(item => id == item.id)
 
 	}
-
+	
+	createEncryptionSharing(url){
+		let str = encrypt.encrypt(url,'ScriptBrowser')
+		return `ScriptBrowser://web@@${str}`
+	}
 }

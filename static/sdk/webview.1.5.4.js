@@ -1,5 +1,5 @@
-! function(e, n) {
-	"object" == typeof exports && "undefined" != typeof module ? module.exports = n() : (e = e || self).webviewCG = n()
+! function(win, n) {
+	win.webviewCG = n()
 }(window, (function() {
 	"use strict";
 	try {

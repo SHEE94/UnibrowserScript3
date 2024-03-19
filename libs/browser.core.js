@@ -19,7 +19,8 @@ import {
 	ACTION_TYPR
 } from './tools/types.js'
 import {
-	uuid
+	uuid,
+	encrypt
 } from './tools/tools.js'
 
 import {
@@ -85,7 +86,8 @@ class WebView extends EventEmitter {
 			hardwareAccelerated: true,
 			plusrequire: 'ahead',
 			videoFullscreen: 'landscape-primary',
-			errorPage: '_www/static/html/error/error.html',
+			errorPage: '_www/static/html/error/error01.html',
+			// errorPage:'none',
 			progress: {
 				color: '#4580ee',
 				height: '2px'
@@ -186,7 +188,7 @@ class WebView extends EventEmitter {
 			this.emit(EVENT_TYPE['CREATE-WEBVIEW'], wv)
 			wv.hide()
 			res(wv);
-			
+
 		})
 	}
 
@@ -253,7 +255,14 @@ class WebView extends EventEmitter {
 	 */
 	loadURL(uniurl) {
 		let url = this.getLocalServeUrl(uniurl)
-		this.checkedActiveWebview().loadURL(url)
+		let active = this.checkedActiveWebview()
+		if (active) {
+			active.loadURL(url)
+		} else {
+			this.state.getData('activeWebview', (activeWebview) => {
+				activeWebview.loadURL(url)
+			})
+		}
 	}
 	/**
 	 * 获取url
@@ -276,15 +285,28 @@ class WebView extends EventEmitter {
 	}
 
 	setWindowConfig() {
-		let url = arguments[0],
-			component = arguments[1],
+
+		let url = arguments[0] || this.state.data.settingConfig.defaultHome.url;
+
+		if (url.indexOf('ScriptBrowser://web@@') > -1) {
+			let a = url.split('ScriptBrowser://web@@')[1]
+			try {
+				url = encrypt.decrypt(a, 'ScriptBrowser')
+			} catch (e) {
+				//TODO handle the exception
+			}
+		}
+
+		let component = arguments[1],
 			homePage = {
 				uuid: uuid(32),
-				url: url || this.state.data.settingConfig.defaultHome.url,
+				url: url,
 				parent: component
 			}
 		return homePage;
 	}
+
+
 
 	/**
 	 * @description 创建后台窗口
@@ -654,6 +676,7 @@ class WebView extends EventEmitter {
 			})
 		})
 	}
+	
 	/**
 	 * 前进到之前一页
 	 */
@@ -676,6 +699,10 @@ class WebView extends EventEmitter {
 
 	}
 
+	// 安装组件
+	componentInstall() {
+
+	}
 }
 
 export {

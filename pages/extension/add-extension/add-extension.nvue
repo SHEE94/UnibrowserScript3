@@ -24,22 +24,26 @@
 			</view>
 
 			<view class="cell">
-				<text class="label">添加本地脚本文件</text>
+				<text class="label">添加JavaScript文件</text>
 				<navigator url="/pages/FM/FM">
-					<text v-if="files.length == 0" class="right-text">添加外部文件</text>
-					<view v-if="files.length" >
-						<text class="right-text" v-for="(item,index) in files">{{item.filename}}</text>
+					<text v-if="files.length == 0" class="right-text">未添加js文件</text>
+					<view v-if="files.length">
+						<text class="right-text js-file" v-for="(item,index) in files">{{item.filename}}</text>
 					</view>
-
 				</navigator>
 			</view>
 
 			<view class="content">
-				<web-view src="/static/html/codeedit/index.html" class="code-edit" ref="webview"
-					@onPostMessage="handlePostMessage"></web-view>
+				<view class="cell">
+					<button size="mini" @click="showCodeEdit">编辑JavaScript代码</button>
+					<button type="primary" size="mini" class="save" @click="save">保存</button>
+				</view>
+				<textarea v-model="code" v-if="textCodeShow" cols="30" rows="10" class="code-text-content"></textarea>
+				<web-view src="/static/html/codeedit/index.html" class="code-edit" ref="codewebview"
+					@onPostMessage="handlePostMessage" v-if="editCode"></web-view>
 			</view>
 
-			<button type="primary" size="mini" class="save" @click="save">保存</button>
+			
 		</view>
 	</view>
 </template>
@@ -49,6 +53,8 @@
 	export default {
 		data() {
 			return {
+				editCode: false,
+				textCodeShow: false,
 				name: '',
 				id: null,
 				code: '',
@@ -77,30 +83,51 @@
 				this.executionType = scriptItem.execution;
 				this.description = scriptItem.description;
 				this.match = scriptItem.match;
-				this.files = scriptItem.scriptPath||[];
-				console.log(this.code)
+				this.files = scriptItem.scriptPath || [];
 				setTimeout(() => {
-					this.$refs.webview.evalJs(`window.setCode(\`${encodeURIComponent(this.code)}\`)`)
+					// this.$refs.webview.evalJs(`window.setCode(\`${encodeURIComponent(this.code)}\`)`)
 				}, 500)
 			}
 
 			uni.$on('_singlefile', (arr) => {
-				console.log(arr)
+
 				this.files = arr;
 			});
 		},
 		methods: {
-			
+
 			handlePostMessage(e) {
-				
+
 				let data = e.detail.data[0];
-				this.code = data.script;
+				if (data.script) {
+					this.code = data.script;
+				}
+				this.editCode = false;
 			},
 			changeexecution(e) {
-				console.log(e.detail.value)
+
 				this.executionType = e.detail.value;
 			},
+			showCodeEdit() {
+
+				if (this.code.length > 1000) {
+					this.textCodeShow = !this.textCodeShow
+				} else {
+					this.editCode = true;
+					uni.showLoading({
+						title: '加载代码'
+					})
+					setTimeout(() => {
+						if (this.code) {
+							let code = encodeURIComponent(this.code);
+							this.$refs.codewebview.evalJs(`window.setCode("${code}")`);
+						}
+						uni.hideLoading();
+					}, 1000)
+				}
+			},
 			save() {
+
 				if (!this.name) {
 					uni.showToast({
 						title: '请填写扩展名',
@@ -108,7 +135,7 @@
 					})
 					return;
 				}
-				this.$refs.webview.evalJs('window.save()')
+				// this.$refs.webview.evalJs('window.save()')
 				uni.showLoading({
 					title: '正在保存'
 				})
@@ -170,11 +197,15 @@
 		}
 
 		.content {
-			background: #ccc;
+			// background: #ccc;
 
 			.code-edit {
 				flex: 1;
-				height: 600px;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				position: fixed;
 			}
 		}
 
@@ -182,11 +213,25 @@
 			width: 150px;
 			margin: 20px;
 		}
-		.right-text{
+
+		.right-text {
 			font-size: 15px;
-			color:#515151;
-			
-			
+			color: #515151;
+			width: 150px;
+			text-align: right;
+		}
+
+		.code-text-content {
+			height: 500px;
+			padding: 10px;
+			background-color: #323232;
+			color: #ffffff;
+			font-size: 14px;
+		}
+
+		.js-file {
+			background-color: rgba($color: #000000, $alpha: 0.1);
+			border-bottom: 1px solid #e7e7e7;
 		}
 	}
 </style>

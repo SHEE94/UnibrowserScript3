@@ -91,7 +91,7 @@ GM_ctrl.GM_addStyle = function(css) {
 }
 
 GM_ctrl.GM_openInTab = function(url, options) {
-
+	
 }
 
 GM_ctrl.GM_registerMenuCommand = function(caption, onClick) {

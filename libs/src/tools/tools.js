@@ -38,6 +38,7 @@ class Tools {
 	 * @param {Object} val {url:{...},url2:{...},url3:{...}}
 	 */
 	set websiteSettingConfig(val) {
+		if(typeof val !== 'object')return;
 		this.wv.state.data.websiteSetting = val;
 		uni.setStorage({
 			key: 'websiteSetting',

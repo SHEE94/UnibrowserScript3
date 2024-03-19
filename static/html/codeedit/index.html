@@ -22,7 +22,9 @@
 	</head>
 	<body>
 		<div>
-			<textarea id="commands">var myScript = function(){
+			<textarea id="commands">
+//示例代码			
+var myScript = function(){
 	// 获取当前浏览器窗口信息
 	var current = webSDK.current;
 	
@@ -43,11 +45,6 @@
 	// 	e.url
 	// })
 
-	/**
-	 * @name 截获浏览器长按事件
-	 * 返回长按元素
-	 */
-	// webSDK.getLongCLickTarget = function(e){}
 }
 
 // 等待SDK加载完成
@@ -55,7 +52,8 @@ if (window.webSDK) {
 	myScript();
 } else {
 	document.addEventListener('SDK-READY', myScript, false);
-}</textarea>
+}
+</textarea>
 			<div class="btns-menu-content">
 				<div class="A-shortcut">
 					<ul class="ul">
@@ -66,9 +64,11 @@ if (window.webSDK) {
 					</ul>
 				</div>
 				<div class="btns">
-					<button type="button" data-loading-icon-position="right" class="mui-btn" id="init">Init(初始化)</button>
+					<button type="button" data-loading-icon-position="right" class="mui-btn"
+						id="init">Init(初始化)</button>
 					<!-- <button type="button" data-loading-icon-position="right" class="mui-btn" id="execute">关闭</button> -->
-					<!-- <button id='savedb' class="button">Save</button> -->
+					<button id='savedb' class="button">Save(保存)</button>
+					<button id='Cancel' class="button">Cancel(取消)</button>
 					<!-- <button id='test-webview' class="button">Debug in Website</button> -->
 				</div>
 			</div>

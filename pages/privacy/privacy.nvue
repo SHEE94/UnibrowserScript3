@@ -6,7 +6,7 @@
 				<text class="desc">{{$t("privacy.location.desc")}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.location" data-type="location" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.location" data-type="location" @change="change" />
 			</view>
 		</view>
 
@@ -15,7 +15,7 @@
 				<text class="label">{{$t("privacy.cookie")}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.cookies" data-type="cookies" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.cookies" data-type="cookies" @change="change" />
 			</view>
 		</view>
 		<view class="list">
@@ -23,13 +23,13 @@
 				<text class="label">{{$t("privacy.clipboard")}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.clipboard" data-type="clipboard" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.clipboard" data-type="clipboard" @change="change" />
 			</view>
 		</view>
 		<view class="list">
 			<view class="left-info"><text class="label">{{$t('privacy.redirect')}}</text></view>
 			<view class="arr">
-				<switch :checked="settingConfig.redirect" data-type="redirect" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.redirect" data-type="redirect" @change="change" />
 			</view>
 		</view>
 		<view class="list">
@@ -38,7 +38,7 @@
 				<text class="desc">{{$t('privacy.timer.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.timer" data-type="timer" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.timer" data-type="timer" @change="change" />
 			</view>
 		</view>
 		<view class="list">
@@ -47,7 +47,7 @@
 				<text class="desc">{{$t('privacy.addScript.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.addScript" data-type="addScript" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.addScript" data-type="addScript" @change="change" />
 			</view>
 		</view>
 
@@ -57,7 +57,7 @@
 				<text class="desc">{{$t('privacy.nonstandardTag.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.nonstandardTag" data-type="nonstandardTag" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.nonstandardTag" data-type="nonstandardTag" @change="change" />
 			</view>
 		</view>
 		<view class="list">
@@ -66,7 +66,7 @@
 				<text class="desc">{{$t('privacy.fingerprint.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.fingerprint" data-type="fingerprint" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.fingerprint" data-type="fingerprint" @change="change" />
 			</view>
 		</view>
 
@@ -76,7 +76,7 @@
 				<text class="desc">{{$t('privacy.auto.download.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.autoDownload" data-type="autoDownload" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.autoDownload" data-type="autoDownload" @change="change" />
 			</view>
 		</view>
 
@@ -87,7 +87,7 @@
 				<text class="desc">{{$t('privacy.otherWebsite.desc')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.otherWebsite" data-type="otherWebsite" @change="change" />
+				<switch class="switch-item" :checked="settingConfig.otherWebsite" data-type="otherWebsite" @change="change" />
 			</view>
 		</view>
 	</view>
@@ -151,23 +151,26 @@
 <style lang="less">
 	.content {
 		padding: 15px 7px;
-		background-color: #eeeeee;
+		
 		min-height: 100vh;
 		box-sizing: border-box;
 	}
 
 	.list {
 		flex-direction: row;
-		margin-bottom: 10px;
+		
 		align-items: center;
 		justify-content: space-between;
-		padding: 7px 10px;
+		padding: 5px 10px;
 		background-color: #f7f7f7;
 
 		.left-info {
 
 			flex: 7.5;
-
+			.label{
+				font-size: 17px;
+				color: #515151;
+			}
 			.desc {
 				font-size: 10px;
 				color: #999;
@@ -178,7 +181,12 @@
 				font-size: 15px;
 				margin-bottom: -2px;
 			}
+			.arr{
+				height: 35px;
+			}
 		}
-
+		.switch-item{
+			transform: scale(0.7);
+		}
 	}
 </style>

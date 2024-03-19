@@ -5,7 +5,7 @@
 		<view class="scroll-content">
 			<view class="list-item" v-if="current == 0">
 				<uni-swipe-action>
-					<action-item :right-options="options" v-for="(item,index) in bookmark" :key="item.title"
+					<action-item :right-options="options" v-for="(item,index) in bookmark" :data-url='item.url' :key="item.title"
 						@click="clickBookmark($event,item.id)">
 						<view class="item-card" @click="openBookmark(item)">
 							<text class="title">{{ item.title }}</text>
@@ -142,6 +142,16 @@
 					});
 				} else if (key == 'delete') {
 					this.webview.Bookmark.del(id);
+				} else if(key == 'EncryptionSharing'){
+					let obj = this.bookmark.find(item=>item.id == id)
+					uni.setClipboardData({
+						data:obj.url,
+						success: () => {
+							uni.showToast({
+								title:'已添加到剪切板'
+							})
+						}
+					})
 				}
 				// this.bookmark = this.webview.Bookmark.get()
 			},
@@ -190,6 +200,7 @@
 				font-size: 14px;
 				text-overflow: ellipsis;
 				lines: 1;
+				color: #515151;
 			}
 		}
 

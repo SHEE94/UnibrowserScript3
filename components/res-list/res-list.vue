@@ -93,6 +93,7 @@
 		border-radius: 10px 10px 0px 0px;
 		box-shadow: 0 0 1500px 10px #000;
 		transform: translateY(100%);
+		border-top: 1px solid #515151;
 
 		.list {
 			height: 380px;
@@ -105,8 +106,9 @@
 
 		.url-text {
 			width: 300px;
-			height: 25px;
-			color: #313131;
+			height: 32px;
+			font-size: 14px;
+			color: #515151;
 			text-overflow: ellipsis;
 		}
 

@@ -1,20 +1,21 @@
 <template>
 	<view class="content">
-		<view>{{$t('about')}}：{{version}}</view>
-		<rich-text  :nodes="node" :selectable="true" class="richtext"></rich-text>
+		<text>{{$t('about')}}：{{version}}</text>
+		<text>{{$t("setting.browser.name")}}：{{browserName}}-{{browserVersion}}</text>
+		<rich-text :nodes="node" :selectable="true" class="richtext"></rich-text>
 	</view>
 </template>
 
 <script>
-/**
- *@description: 关于页面
- *@author: Xianxu
- *@date: 2024-02-02
- *@version: 3.0
- *@Copyright: Xianxu
- *@LastEditors: Xianxu
- *@LastEditTime: 2024-02-02
- */
+	/**
+	 *@description: 关于页面
+	 *@author: Xianxu
+	 *@date: 2024-02-02
+	 *@version: 3.0
+	 *@Copyright: Xianxu
+	 *@LastEditors: Xianxu
+	 *@LastEditTime: 2024-02-02
+	 */
 
 	import {
 		initVueI18n,
@@ -23,7 +24,8 @@
 	import messages from '@/locale/index'
 	import htmlPaser from './html-parser.js'
 	const {
-		t,setLocale
+		t,
+		setLocale
 	} = initVueI18n(messages)
 	const app = getApp()
 	const settingConfig = app.globalData.webview.Setting.settingConfig;
@@ -31,8 +33,10 @@
 	export default {
 		data() {
 			return {
-				version:'3.0.0',
-				node:`<p class="" data-tools-id="85481">
+				browserName:'',
+				browserVersion:'',
+				version: '3.0.0',
+				node: `<p class="" data-tools-id="85481">
 	&nbsp;&nbsp;&nbsp;&nbsp;本应用为开源应用，如果你在任何地方下载了收费版的，都是盗版，本应用遵循&nbsp;MIT 开源协议。
 </p>
 <p class="" data-tools-id="13138">
@@ -87,23 +91,27 @@
 		},
 		onLoad() {
 			this.node = htmlPaser(this.node)
+			let sys = uni.getSystemInfoSync()
+			this.browserName = sys.browserName;
+			this.browserVersion = sys.browserVersion;
 			let that = this;
 			plus.runtime.getProperty(plus.runtime.appid, function(widgetInfo) {
 				that.version = widgetInfo.version
 			})
 		},
-		methods:{
-			$t:t,
+		methods: {
+			$t: t,
 		}
 	}
 </script>
 
 <style lang="less">
-.content{
-	padding: 30upx;
-	box-sizing: border-box;
-	.richtext{
-		margin-top: 50px;
+	.content {
+		padding: 30upx;
+		box-sizing: border-box;
+
+		.richtext {
+			margin-top: 50px;
+		}
 	}
-}
 </style>

@@ -1,7 +1,7 @@
 <template>
 	<view class="bookmark-edit-content">
-		<input type="text" :value="info.title" placeholder="title" class="input-text" v-model="info.title"/>
-		<input type="text" :value="info.url" placeholder="url" class="input-text" v-model="info.url"/>
+		<input type="text"  placeholder="title" class="input-text" v-model="info.title"/>
+		<input type="text"  placeholder="url" class="input-text" v-model="info.url"/>
 		<button type="default" @click="confirm">确认</button>
 	</view>
 </template>
@@ -21,32 +21,30 @@ const app = getApp()
 export default {
 	data() {
 		return {
-			info:{
-				title:'',
-				url:''
-			}
+			info:{}
 		};
 	},
 	onReady() {
 		
-		this.webview = app.globalData.webview;
-		let actionWeb = this.webview.checkedActiveWebview();
 		
-		this.info.title = actionWeb.getTitle();
-		
-		this.info.url = this.webview.getURL();
 	},
 	onLoad(options) {
 		this.id = options.id
 		if(this.id){
 			this.info = app.globalData.webview.Bookmark.get(this.id)
-			console.log(this.info)
+			
+		}else{
+			this.webview = app.globalData.webview;
+			let actionWeb = this.webview.checkedActiveWebview();
+			this.info.title = actionWeb.getTitle();
+			this.info.url = this.webview.getURL();
 		}
 	},
 	methods:{
 		confirm(){
 			if(this.id){
 				 this.webview.Bookmark.update(this.info)
+				 uni.navigateBack()
 				return;
 			}
 			this.webview.Bookmark.add({

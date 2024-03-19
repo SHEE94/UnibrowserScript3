@@ -1,11 +1,11 @@
 <template>
 	<view class="content">
-		<view class="list">
+		<view class="list switch-item">
 			<view class="left-info">
 				<text class="label">{{$t('setting.pullLoad')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.pullLoad" @change="changePullload" />
+				<switch class="switch" :checked="settingConfig.pullLoad" @change="changePullload" />
 			</view>
 		</view>
 		<!-- <view class="list">
@@ -16,41 +16,41 @@
 				<switch :checked="settingConfig.resLog" @change="changeLog" />
 			</view>
 		</view> -->
-		<view class="list">
+		<view class="list switch-item">
 			<view class="left-info">
 				<text class="label">{{$t('setting.dormancy')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.dormancy" data-type="dormancy" @change="change" />
+				<switch class="switch" :checked="settingConfig.dormancy" data-type="dormancy" @change="change" />
 			</view>
 		</view>
 
 
-		<view class="list">
+		<view class="list switch-item">
 			<view class="left-info">
 				<text class="label">{{$t('setting.videoPLay')}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.videoPLay" data-type="videoPLay" @change="change" />
+				<switch class="switch" :checked="settingConfig.videoPLay" data-type="videoPLay" @change="change" />
 			</view>
 		</view>
 
-		<view class="list">
+		<view class="list switch-item">
 			<view class="left-info">
 				<text class="label">{{$t("setting.lastPage")}}</text>
 			</view>
 			<view class="arr">
-				<switch :checked="settingConfig.lastPage" data-type="lastPage" @change="change" />
+				<switch class="switch" size="mini" :checked="settingConfig.lastPage" data-type="lastPage" @change="change" />
 			</view>
 		</view>
-		<view class="list">
+		<!-- <view class="list">
 			<view class="left-info">
 				<text class="label">{{$t("setting.blank")}}</text>
 			</view>
 			<view class="arr">
 				<switch :checked="settingConfig.blank" data-type="blank" @change="change" />
 			</view>
-		</view>
+		</view> -->
 		<!-- <view class="list">
 			<view class="left-info">
 				<view class="label">每日背景图</view>
@@ -76,7 +76,7 @@
 			<view class="arr">
 				<picker mode="selector" :range="downloadType" @change="changedownloadType">
 					<view style="padding: 0 10px;color: #525252;font-size: 14px;">
-						{{ downloadType[settingConfig.downloadCurrent] }}
+						<text class="right-text">{{ downloadType[settingConfig.downloadCurrent] }}</text> 
 					</view>
 				</picker>
 			</view>
@@ -88,7 +88,7 @@
 			<view class="arr iconfont icon-righ">
 				<picker mode="selector" range-key="label" :range="settingConfig.language" @change="changelanguage">
 					<view style="padding: 0 10px;color: #525252;font-size: 14px;width: 100px;text-align: right;">
-						{{ settingConfig.language[settingConfig.langCurrnt].label }}
+						<text class="right-text">{{ settingConfig.language[settingConfig.langCurrnt].label }}</text> 
 					</view>
 				</picker>
 			</view>
@@ -102,7 +102,7 @@
 			<view class="left-info">
 				<text class="label">{{ $t(item.name) }}</text>
 			</view>
-			<view class="arr iconfont icon-right"></view>
+			<view class="arr iconfont icon-right"><text class=" cc-font icon">&#xe77c;</text> </view>
 		</view>
 		<!-- <view class="list" @click="checkupdate">
 			<view class="left-info"><view class="label">检查更新</view></view>
@@ -407,9 +407,9 @@
 	};
 </script>
 
-<style lang="less">
+<style lang="scss">
 	.content {
-		padding: 15px 15;
+		padding: 0px 15px;
 		// background-color: #eeeeee;
 		// height: 100vh;
 		box-sizing: border-box;
@@ -418,31 +418,42 @@
 	.list {
 		display: flex;
 		flex-direction: row;
-		margin-bottom: 10px;
+		
 		align-items: center;
 		justify-content: space-between;
-		padding: 7px 10px;
-		border-bottom: 1px solid #f7f7f7;
-
+		padding: 5rpx 10rpx;
 		.left-info {
 			display: flex;
 			align-items: center;
-
+			
 			.icon {
 				margin-right: 5px;
 				font-size: 15px;
-				margin-bottom: -2px;
 			}
 		}
 
 		.label {
 			color: #515151;
+			font-size: 18px;
 		}
-
+	
 		.arr {
-			display: flex;
-			justify-content: flex-end;
-			// width: 100px;
+			
+			flex-direction: column;
+			justify-content: center;
+			height: 35px;
+			align-items: center;
+			.icon{
+				font-size: 14px;
+			}
+		}
+		.switch{
+			height: 35px;
+			transform: scale(0.7);
+		}
+		.right-text{
+			font-size: 14px;
+			text-align: right;
 		}
 	}
 </style>

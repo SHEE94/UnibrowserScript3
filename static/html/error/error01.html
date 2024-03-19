@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ERROR</title>
+</head>
+<style>
+	body{
+		background-color: #fff;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		margin: 0;
+		padding: 0;
+	}
+	.error-content{
+		height: 100%;
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	.title{
+		border: 1px solid #999999;
+		padding:5px 10px;
+		border-radius: 10px;
+		color: #515151;
+		margin-top: 15px;
+	}
+	.url{
+		color: #515151;
+		max-width: 80%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: inline-block;
+		white-space: nowrap;
+	}
+</style>
+<body>
+	<div class="error-content">
+		<p class="url"></p>
+		<img src="./152error40401.png" alt="" srcset="" />
+		<div class="title" >Loading error! reload</div>
+	</div>
+</body>
+<script>
+	var href = '';
+	document.addEventListener("error", function(e){
+		var url = e.url;  // 错误页面的url地址
+		document.querySelector('.url').textContent = url;
+	 	href = e.href; // 错误页面的完整路径（包括完整的协议头）
+	},false);
+	document.querySelector('.title').addEventListener('click',function(){
+		location.href = href;
+	})
+</script>
+</html>

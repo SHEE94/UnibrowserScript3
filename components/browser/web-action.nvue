@@ -1,48 +1,71 @@
 <template>
 	<view class="menu-content">
+
 		<view class="list-content">
 			<view class="url-text" v-if="href && href != 'undefined'"><text class="color999">{{href}}</text></view>
 			<template v-if="href && href != 'undefined'">
 				<view class="btn" @click="menuChange(ACTION_TYPE.openBg,href)">
-					<text>{{$t("menu.background.open")}}</text></view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.openNew,href)"><text>{{$t("menu.new.open")}}</text>
+					<text class="label">{{$t("menu.background.open")}}</text>
 				</view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.copyLink,href)"><text>{{$t("menu.copy.link")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.openNew,href)"><text
+						class="label">{{$t("menu.new.open")}}</text>
 				</view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.overrLink,href)"><text>{{$t("menu.inter.link")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyLink,href)"><text
+						class="label">{{$t("menu.copy.link")}}</text>
 				</view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.adurl)"><text>{{$t("menu.inter.website")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.overrLink,href)"><text
+						class="label">{{$t("menu.inter.link")}}</text>
 				</view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.copyText)"><text>{{$t("menu.copy.link.text")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.adurl)"><text
+						class="label">{{$t("menu.inter.website")}}</text>
+				</view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyText)"><text
+						class="label">{{$t("menu.copy.link.text")}}</text>
 				</view>
 			</template>
 			<template v-if="src && src != 'undefined'">
-				<view class="btn" @click="menuChange(ACTION_TYPE.saveImg)"><text>{{$t("menu.save.img")}}</text></view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.preview)"><text>{{$t("menu.preivew.img")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.saveImg)"><text
+						class="label">{{$t("menu.save.img")}}</text></view>
+				<view class="btn" @click="menuChange(ACTION_TYPE.preview)"><text
+						class="label">{{$t("menu.preivew.img")}}</text>
 				</view>
-				<view class="btn" @click="menuChange(ACTION_TYPE.copyImgLink,src)"><text>{{$t("menu.copy.img")}}</text>
+				<view class="btn" @click="menuChange(ACTION_TYPE.copyImgLink,src)"><text
+						class="label">{{$t("menu.copy.img")}}</text>
 				</view>
 				<view v-if="tag == 'VIDEO'" class="btn" @click="menuChange(ACTION_TYPE.openVideo,src)">
-					<text>{{$t("menu.open.play")}}</text>
+					<text class="label">{{$t("menu.open.play")}}</text>
+				</view>
+				<view v-if="tag == 'IFRAME'" class="btn" @click="menuChange(ACTION_TYPE.openIframe,src)">
+					<text class="label">{{$t("menu.open.iframe")}}</text>
 				</view>
 			</template>
+
 			<view class="btn" v-if="text && text != 'undefined'" @click="menuChange(ACTION_TYPE.copyChangeText)">
-				<text>{{$t("menu.copy.text")}}</text>
+				<text class="label">{{$t("menu.copy.text")}}</text>
 			</view>
-			<view class="btn" @click="menuChange(ACTION_TYPE.ad)"><text>{{$t("menu.ad")}}</text></view>
-			<view class="btn" @click="menuChange(ACTION_TYPE.webapp)"><text>{{$t("menu.installwebapp")}}</text></view>
+			<view class="btn" @click="menuChange(ACTION_TYPE.ad)"><text class="label">{{$t("menu.ad")}}</text></view>
+			<view class="btn" @click="menuChange(ACTION_TYPE.webapp)"><text
+					class="label">{{$t("menu.installwebapp")}}</text></view>
+			<view class="btn" v-for="item in GM_MENU" :key="item.id" @click="changeGM(item)">
+				<text class="label">{{ item.title }}</text>
+			</view>
+
 		</view>
+
+
 	</view>
 </template>
 
 <script>
 	import {
-		initVueI18n
+		initVueI18n,
+		I18n
 	} from '@dcloudio/uni-i18n'
 	import messages from '@/locale/index'
-
+	
 	const {
-		t
+		t,
+		setLocale
 	} = initVueI18n(messages)
 	const app = getApp()
 	export default {
@@ -63,9 +86,11 @@
 					openVideo: 9,
 					copyChangeText: 10,
 					ad: 11,
-					webapp: 12
+					webapp: 12,
+					openIframe: 13,
 				},
-				webview: null
+				webview: null,
+				GM_MENU: []
 			};
 		},
 		watch: {
@@ -74,8 +99,14 @@
 			}
 		},
 		created() {
-
+			let webview = app.globalData.webview;
+			const settingConfig = app.globalData.webview.Setting.settingConfig;
+			setLocale(settingConfig.language[settingConfig.langCurrnt].code);
+			webview.state.getData('GM_MENU', (GM_MENU) => {
+				this.GM_MENU = GM_MENU;
+			})
 		},
+
 		methods: {
 			$t: t,
 			clipText(text) {
@@ -143,12 +174,16 @@
 					case this.ACTION_TYPE.openVideo:
 						this.openSysVideo(this.src)
 						break;
+
+					case this.ACTION_TYPE.openIframe:
+						app.globalData.webview.openNewWindow(this.src)
+						break;
 					case this.ACTION_TYPE.ad:
 						let webview = app.globalData.webview;
-						this.className.split(' ').forEach(className=>{
+						this.className.split(' ').forEach(className => {
 							webview.AD.addClassAD(className)
 						})
-						
+
 						webview.activeWebview.evalJS(webview.AD.injectClearADCode())
 						break;
 					case this.ACTION_TYPE.adurl:
@@ -164,7 +199,11 @@
 				this.close()
 			},
 			close() {
+
 				this.$emit('close')
+			},
+			closeScroll() {
+				console.log('closeScroll')
 			},
 			openSysVideo(src) {
 				var Intent = plus.android.importClass("android.content.Intent");
@@ -174,6 +213,9 @@
 				var uri = Uri.parse(src);
 				intent.setDataAndType(uri, "video/*");
 				main.startActivity(intent);
+			},
+			changeGM(item) {
+				app.globalData.webview.ScriptExtension.clickExtensionMenu(item)
 			}
 		}
 	};
@@ -192,22 +234,23 @@
 		top: 0;
 		background: rgba(0, 0, 0, .5);
 
+		.scroll-view {
+			flex: 1;
+			align-items: center;
+			justify-content: center;
+			background-color: #999;
+			position: relative;
+		}
+
 		.list-content {
 
-			// position: fixed;
-			width: 300px;
-			background: #fefefe;
+			width: 240px;
+			background: #ffffff;
 			padding: 15px;
-			border-radius: 10px;
-			// transform: translate(50%, 50%);
-			// transform-origin: 0% 0%;
-			// border:1px solid #ccc;
-			box-shadow: 0 0 20px 0px #515151;
-			// max-height: 90%;
-			overflow-y: auto;
-			display: flex;
+			border-radius: 15px;
+			box-shadow: 0 0 20px 0px #313131;
 			flex-direction: column;
-
+			border: 1px solid #eeeeee;
 			.color555 {
 				color: #515151;
 			}
@@ -229,14 +272,12 @@
 			}
 
 			.btn {
-				color: #515151;
-				// border-bottom: 1px solid #C0C0C0;
-				padding: 10px;
-
-			}
-
-			.btn:nth-last-child(1) {
-				border-bottom: none;
+				padding:7px 0px;
+				.label{
+					color: #515151;
+					font-size: 14px;
+					font-weight: 700;
+				}
 			}
 		}
 	}

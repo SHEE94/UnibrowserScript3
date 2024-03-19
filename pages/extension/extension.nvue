@@ -132,7 +132,7 @@
 			margin-top: 15px;
 
 			.list-item {
-				display: flex;
+				
 				flex-direction: row;
 				margin-bottom: 5px;
 				align-items: center;
@@ -141,7 +141,10 @@
 				border-bottom: 1px solid #eeeeee;
 
 				.left-info {
-
+					
+					flex: 7;
+					overflow: hidden;
+					text-overflow: ellipsis;
 					.icon {
 						margin-right: 5px;
 						font-size: 15px;
@@ -152,12 +155,13 @@
 				.label {
 					color: #515151;
 					font-size: 15px;
+					text-overflow: ellipsis;
 				}
 
 				.arr {
-					display: flex;
+					flex: 3;
+					flex-direction: row;
 					justify-content: flex-end;
-					// width: 100px;
 					font-size: 15px;
 				}
 			}
@@ -167,7 +171,7 @@
 			font-size: 12px;
 			color: #999;
 			text-overflow: ellipsis;
-			width: 300px;
+			
 			height: 15px;
 			overflow: hidden;
 		}

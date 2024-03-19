@@ -5,39 +5,110 @@
 				@confirm="searchConfirm" />
 			<text class="cc-font clear-history" @click="searchVal = ''">&#xe62b;</text>
 		</view>
+		<view class="search-history-content" v-if="showHistory.length">
+			<text class="close-history" @click="showHistory = []"> {{$t('script.tips.7')}}</text>
+			<scroll-view scroll-y="true" class="scroll-history">
+				<view>
+					<view v-for="(item,index) in showHistory" :key="index" class="item"
+						@click.stop="searchHistory(item)">
+						<text class="text">{{item}}</text>
+						<!-- <view class="ccfffasd icon-bianji icon" @click.stop="editKeyword(item)"><text>&#xe652;</text></view> -->
+					</view>
+				</view>
+			</scroll-view>
+		
+		</view>
 		<view class="history-tag"></view>
 	</view>
 </template>
 
 <script>
-/**
- *@description: 搜索
- *@author: Xianxu
- *@date: 2024-02-02
- *@version: 3.0
- *@Copyright: Xianxu
- *@LastEditors: Xianxu
- *@LastEditTime: 2024-02-02
- */
-
+	/**
+	 *@description: 搜索
+	 *@author: Xianxu
+	 *@date: 2024-02-02
+	 *@version: 3.0
+	 *@Copyright: Xianxu
+	 *@LastEditors: Xianxu
+	 *@LastEditTime: 2024-02-02
+	 */
+	import {
+		debounce
+	} from '@/utils/tools.js';
+	import searchKeyword from '@/utils/keyword.js';
+	import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+	
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
 	const app = getApp()
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
 	export default {
 		data() {
 			return {
-				searchVal: ''
+				searchVal: '',
+				showHistory: [],
 			};
+		},
+		watch:{
+			searchVal(val){
+				this.inputsearch(val)
+			}
 		},
 		onLoad(options) {
 			let url = decodeURIComponent(options.url)
-			
+
 			if (url.indexOf('file') == -1) {
 				this.searchVal = url;
 			}
 
 		},
 		methods: {
-			searchConfirm() {
+			$t:t,
+			searchHistory(val){
+				uni.$emit('search', val)
 				
+				uni.navigateBack()
+				
+			},
+			inputsearch(val) {
+				this.showHistory = []
+				if (!val) return;
+
+
+				debounce((val) => {
+					searchKeyword(val).then(res => {
+						let data = res.s;
+						this.showHistory = data;
+					})
+				})(val)
+				try {
+					for (let i = 0, len = this.historyLogArr.length; i < len; i++) {
+						if (!this.historyLogArr[i]) continue;
+						if (this.historyLogArr[i].indexOf(val) > -1) {
+							if (this.showHistory.length > 10) {
+								this.showHistory.pop()
+							}
+							if (!val) {
+								this.showHistory = []
+								return;
+							}
+							this.showHistory.unshift(this.historyLogArr[i])
+						}
+					}
+				} catch (e) {
+					//TODO handle the exception
+				}
+
+			},
+			searchConfirm() {
+
 				uni.$emit('search', this.searchVal)
 				setTimeout(() => {
 					uni.navigateBack()
@@ -56,7 +127,6 @@
 		left: $uni-spacing-row-lg;
 		right: $uni-spacing-row-lg;
 		border-radius: 50px;
-		overflow: hidden;
 		padding: 0 $uni-spacing-row-lg;
 		justify-content: space-between;
 		align-items: center;
@@ -70,6 +140,44 @@
 
 		.clear-history {
 			font-size: 15px;
+		}
+
+		
+	}
+	.search-history-content {
+		position: fixed;
+		background: rgba(0, 0, 0, 0);
+		left: 15px;
+		right: 15px;
+		padding: 10px;
+		top: 40px;
+		
+		border-radius: 0 0 10px 10px;
+		height: 300px;
+	
+		.scroll-history {
+			height: 200px;
+			.text{
+				font-size: 17px;
+				color: #515151;
+			}
+			.item {
+				
+				margin-bottom: 5px;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				.icon {
+					font-size: 12px;
+				}
+			}
+		}
+	
+		.close-history {
+			color: #999;
+			font-size: 14px;
+			align-self: flex-end;
+			margin-bottom: 10px;
 		}
 	}
 </style>

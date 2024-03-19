@@ -269,14 +269,15 @@
 			flex-direction: row;
 			justify-content: center;
 			align-items: center;
-			padding: 15px 0;
+			padding: 8px 0px;
 			border-bottom: 1px solid #f7f7f7;
 
 			.title {
 				flex: 5;
-				// font-size: 22px;
+				font-size: 17px;
 				margin-right: 5px;
 				text-align: right;
+				color: #515151;
 			}
 
 			.text {
@@ -310,6 +311,7 @@
 				margin-bottom: 10px;
 
 				.left-info {
+
 					.desc {
 						font-size: 10px;
 						color: #999;
@@ -334,6 +336,11 @@
 				.left-info {
 					padding-left: 15px;
 					flex: 8;
+
+					.label {
+						font-size: 17px;
+						color: #515151;
+					}
 
 					.desc {
 						font-size: 10px;

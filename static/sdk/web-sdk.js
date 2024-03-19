@@ -1,14 +1,17 @@
 "use strict";
 
+const startTime = Date.now()
 
 try {
+	;
 	(function() {
-		const startTime = Date.now()
+
 		cgsdk = function() {
 
 			console.log('SDK LOADED')
 			window.WEB_SDK_LOADED = true;
 			const version = '3.0.0';
+			const $Runtime = plus.runtime;
 			plus.ad = null;
 			plus.camera = null;
 			plus.share = null;
@@ -27,16 +30,23 @@ try {
 			plus.fingerprint = null;
 			plus.navigator = null;
 
-			const webview = plus.webview.currentWebview();
+			let webview = null;
 
 			const storage = plus.storage;
 
-			const _setTimeout = window.setTimeout
+			const _setTimeout = window.setTimeout;
 
-			const Intent = plus.android.importClass("android.content.Intent");
-			const Uri = plus.android.importClass("android.net.Uri");
-			const main = plus.android.runtimeMainActivity();
-
+			let Intent = null;
+			let Uri = null;
+			let main = null;
+			try {
+				webview = plus.webview.currentWebview();
+				Intent = plus.android.importClass("android.content.Intent");
+				Uri = plus.android.importClass("android.net.Uri");
+				main = plus.android.runtimeMainActivity();
+			} catch (e) {
+				//TODO handle the exception
+			}
 
 			const webSDK = {
 				current: webview,
@@ -48,7 +58,6 @@ try {
 							jsonback: obj
 						}
 					});
-
 				},
 				storage: {
 					setItem: function(key, value) {
@@ -74,22 +83,6 @@ try {
 			};
 
 
-			// 预加载链接
-
-
-			window.addEventListener('DOMContentLoaded', function() {
-				let alink = document.querySelectorAll('a');
-				let reg = new RegExp(/(上|下).*(页|章)|[0-9]/, 'i')
-				let urls = []
-				alink.forEach(item => {
-					if (reg.test(item.textContent)) {
-						urls.push(item.href)
-					}
-				})
-				plus.webview.prefetchURLs(urls);
-			})
-
-
 			let touchX = 0;
 			let touchY = 0;
 
@@ -112,28 +105,35 @@ try {
 			}
 
 
-			// 监听下载
-			let nwv = webview.nativeInstanceObject();
-			if (setting.downloadCurrent != 0 && !setting.autoDownload) {
-				let DownloadListener = plus.android.implements('android.webkit.DownloadListener', {
-					onDownloadStart: function(url) {
-						webSDK.DownloadListener && webSDK.DownloadListener(url)
-						webSDK.sendMessage({
-							action: 'download',
-							url: encodeURIComponent(url)
-						})
-					}
-				});
-				plus.android.invoke(nwv, 'setDownloadListener', DownloadListener);
+
+
+			try {
+				// 监听下载
+				let nwv = webview.nativeInstanceObject();
+				if (setting.downloadCurrent != 0 && !setting.autoDownload) {
+					let DownloadListener = plus.android.implements('android.webkit.DownloadListener', {
+						onDownloadStart: function(url) {
+							webSDK.DownloadListener && webSDK.DownloadListener(url)
+							webSDK.sendMessage({
+								action: 'download',
+								url: encodeURIComponent(url)
+							})
+						}
+					});
+					plus.android.invoke(nwv, 'setDownloadListener', DownloadListener);
+				}
+				if (setting.autoDownload) {
+					let DownloadListener = plus.android.implements('android.webkit.DownloadListener', {
+						onDownloadStart: function(url) {
+							return false;
+						}
+					});
+					plus.android.invoke(nwv, 'setDownloadListener', DownloadListener);
+				}
+			} catch (e) {
+				//TODO handle the exception
 			}
-			if (setting.autoDownload) {
-				let DownloadListener = plus.android.implements('android.webkit.DownloadListener', {
-					onDownloadStart: function(url) {
-						return false;
-					}
-				});
-				plus.android.invoke(nwv, 'setDownloadListener', DownloadListener);
-			}
+
 
 
 			class websiteStatistics {
@@ -151,31 +151,31 @@ try {
 						addNodeCount: 0,
 						location: 0,
 						cameraCount: 0,
-						historyState:0,
-						cookies:''
+						historyState: 0,
+						cookies: ''
 					}
 
-					this.statisticsName = `${host}_statistics`
+					this.statisticsName = `${host}_statistics`;
 
 					if (typeof _statistics == 'string') {
-						_statistics = JSON.parse(_statistics)
+						_statistics = JSON.parse(_statistics);
 					}
 
 
 					if (setting.timer) {
 						window.setTimeout = function() {
-							that.Data.timerCount++
-							_setTimeout.apply(this, arguments)
+							that.Data.timerCount++;
+							_setTimeout.apply(this, arguments);
 						}
-						const _setInterval = window.setInterval
+						const _setInterval = window.setInterval;
 						window.setInterval = function() {
-							that.Data.timerCount++
-							_setInterval.apply(this, arguments)
+							that.Data.timerCount++;
+							_setInterval.apply(this, arguments);
 						}
-						const _requestAnimationFrame = window.requestAnimationFrame
+						const _requestAnimationFrame = window.requestAnimationFrame;
 						window.requestAnimationFrame = function() {
-							that.Data.timerCount++
-							_requestAnimationFrame.apply(this, arguments)
+							that.Data.timerCount++;
+							_requestAnimationFrame.apply(this, arguments);
 						}
 					}
 
@@ -185,26 +185,70 @@ try {
 					let _getCurrentPosition = window.navigator.geolocation.getCurrentPosition
 					window.navigator.geolocation.getCurrentPosition = function() {
 						that.Data.location++;
-						that.send()
+						that.send();
 						if (!setting.location) return;
-						return _getCurrentPosition.apply(this, arguments)
+						if (confirm(
+								'网页正在请求定位接口，是否允许？\n The page is requesting a location interface!')) {
+							return _getCurrentPosition.apply(this, arguments)
+						}
 					}
 
-					window.addEventListener('DOMContentLoaded', function() {
-						that.Data.speed = Date.now() - startTime;
-						// 开发者工具
-						if (setting.dev) {
-							(function() {
-								var script = document.createElement('script');
-								script.src = "//cdn.jsdelivr.net/npm/eruda";
-								document.body.appendChild(script);
-								script.onload = function() {
-									eruda.init()
-								}
 
-							})();
+					try {
+						const dev = function() {
+							that.Data.speed = Date.now() - startTime;
+							let mate =
+								`<meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content: https://xxx.com;media-src * blob: 'self' http://* 'unsafe-inline' 'unsafe-eval';style-src * 'self' 'unsafe-inline';img-src * 'self' data: content:;connect-src * blob:;">`;
+
+							let d = document.createElement('div')
+							d.innerHTML = mate;
+
+							let mateNode = d.lastChild;
+
+							document.head.appendChild(mateNode);
+
+							window.DOMContentLoadedStatus = true;
+
+							let src = "//cdn.jsdelivr.net/npm/eruda";
+							if (location.protocol.indexOf('http') == -1) {
+								src = 'http:' + src;
+							}
+							// 开发者工具
+							if (setting.dev) {
+								(function() {
+									var script = document.createElement('script');
+									script.src = src;
+									document.body.appendChild(script);
+									script.onload = function() {
+										if (!eruda) return;
+										eruda.init();
+									}
+
+								})();
+							}
+							let alink = document.querySelectorAll('a');
+							let reg = new RegExp(/(上|下).*(页|章)|[0-9]/, 'i')
+							let urls = []
+							alink.forEach(item => {
+								if (reg.test(item.textContent)) {
+									urls.push(item.href);
+								}
+							})
+							plus.webview.prefetchURLs(urls);
 						}
-					})
+						
+						// 兼容X5内核
+						if (document.readyState == 'complete') {
+							dev()
+						}
+						// 普通浏览器内核调用
+						window.addEventListener('DOMContentLoaded', function() {
+							dev()
+						})
+					} catch (e) {
+						//TODO handle the exception
+					}
+
 				}
 				send() {
 					this.Data.cookies = document.cookie
@@ -231,7 +275,7 @@ try {
 				addCamera() {
 					this.Data.cameraCount++
 				}
-				addHistory(){
+				addHistory() {
 					this.Data.historyState++
 				}
 			}
@@ -244,6 +288,9 @@ try {
 			window.sendStatics = function() {
 				$websiteStatistics.send()
 			}
+
+
+
 
 			let $replece = location.replace
 
@@ -321,14 +368,19 @@ try {
 			 * @param {string} src
 			 */
 			function openSysVideo() {
-				let url = arguments[0]
-				let intent = new Intent(Intent.ACTION_VIEW);
-				if (url) {
-					this.src = url;
+				let url = arguments[0];
+				if (main) {
+					let intent = new Intent(Intent.ACTION_VIEW);
+					if (url) {
+						this.src = url;
+					}
+					let uri = Uri.parse(this.src);
+					intent.setDataAndType(uri, "video/*");
+					main.startActivity(intent);
+				} else {
+					$Runtime.openURL(this.src)
 				}
-				let uri = Uri.parse(this.src);
-				intent.setDataAndType(uri, "video/*");
-				main.startActivity(intent);
+
 				this.playSysPlayState = false;
 			}
 			webSDK.openSystemPlayer = openSysVideo
@@ -420,19 +472,18 @@ try {
 				timer()
 			}
 
-			const _appendChild = HTMLElement.prototype.appendChild
-			if (!setting.nonstandardTag) {
-				let nodelist =
-					'meta,base,button,textarea,pre,head,audio,html,svg,tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br,#text,#comment';
 
-				HTMLElement.prototype.appendChild = function(node) {
-					let tagname = node.tagName||node.nodeName
-					
+			const _appendChild = HTMLElement.prototype.appendChild
+
+			let nodelist =
+				'meta,base,button,textarea,pre,head,audio,html,svg,tbody,tr,td,a,div,article,img,input,script,iframe,canvas,main,section,ul,li,h1,h2,h3,h4,h5,h6,nav,video,p,header,footer,style,link,table,span,fieldset,select,option,form,label,hr,i,br,#text,#comment';
+
+			HTMLElement.prototype.appendChild = function(node) {
+				let tagname = node.tagName || node.nodeName
+				if (!setting.nonstandardTag) {
 					if (typeof tagname == 'undefined' || !nodelist.includes(tagname.toLocaleLowerCase())) {
-						
 						return null;
 					}
-
 					// if (tagname.toLocaleLowerCase() == 'video') {
 					// 	node.setAttribute('controls', 'controls')
 					// 	node.setAttribute('autoplay', false);
@@ -447,10 +498,7 @@ try {
 					}
 					$websiteStatistics.addNodes()
 					return _appendChild.apply(this, arguments);
-				}
-			} else {
-				HTMLElement.prototype.appendChild = function(node) {
-					let tagname = node.tagName
+				} else {
 					if (tagname) {
 						if (tagname.toLocaleLowerCase() == 'script') {
 							$websiteStatistics.addScript()
@@ -464,6 +512,7 @@ try {
 					return _appendChild.apply(this, arguments);
 				}
 			}
+
 
 			const _alert = window.alert
 			const _confirm = window.confirm
@@ -613,7 +662,7 @@ try {
 			 */
 			function getActionNodes(x, y) {
 				let nodes = document.elementsFromPoint(x, y)
-				if(!nodes)return [];
+				if (!nodes) return [];
 				let tages = []
 				for (let i = 0, len = nodes.length; i < len; i++) {
 					if (actionTag.includes(nodes[i].tagName)) {
@@ -656,6 +705,7 @@ try {
 					eleText;
 
 				eles.forEach(function(ele) {
+					if (!ele) return;
 					tagName = ele.tagName
 					if (ele.src) {
 						eleSrc = encodeURIComponent(ele.src)
@@ -663,7 +713,9 @@ try {
 					if (ele.href) {
 						eleHref = encodeURIComponent(ele.href)
 					}
-					eleClassName = ele.className
+					if (ele && ele.className) {
+						eleClassName = ele.className
+					}
 					eleText = ele.textContent;
 				})
 
@@ -717,5 +769,5 @@ try {
 } catch (e) {
 	//TODO handle the exception
 	console.log('SDK load fail')
-	console.warn(e)
+	console.warn(JSON.stringify(e.stack))
 }

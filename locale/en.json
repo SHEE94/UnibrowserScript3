@@ -46,6 +46,7 @@
 	"setting.lastPage": "Record the last tab",
 	"setting.blank": "Open the page in a new window",
 	"setting.homepage": "Set home tab",
+	"setting.browser.name": "Webview Core",
 	
 	"weblog.override-resource": "blocked resources",
 	"weblog.type": "Type",
@@ -193,6 +194,7 @@
 	"menu.tips.2":"Do not have permission",
 	"menu.tips.3":"File saving path",
 	"menu.installwebapp":"Web install as application",
+	"menu.open.iframe":"Open iframe",
 	
 	"bgwindow.open.window":"New Window",
 	"bgwindow.close.window":"Close",

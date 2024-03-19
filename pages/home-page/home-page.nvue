@@ -60,15 +60,11 @@
 						default: false
 					},
 					{
-						title: 'iTab',
-						url: 'https://go.itab.link/',
+						title: 'baidu',
+						url: 'https://m.baidu.com/',
 						default: false
 					},
-					{
-						title: '爱达杂货铺',
-						url: 'https://adzhp.cn/',
-						default: false
-					},
+					
 
 				]
 			};
@@ -153,7 +149,7 @@
 	}
 
 	.item-card {
-		border-bottom: 1px solid #ccc;
+		border-bottom: 1px solid #eeeeee;
 		padding: $uni-spacing-row-lg;
 		flex: 1;
 

@@ -69,7 +69,6 @@
 			uni.$emit('back');
 			return true;
 		},
-
 		methods: {
 			to_link(txtContent) {
 				let domainArr = txtContent.split('.');
@@ -126,7 +125,7 @@
 				})
 				let $val = ''
 				this.webview.state.getData('loadUrl', (val) => {
-					if (!val || $val != val) return;
+					if (!val || $val == val) return;
 					$val = val;
 					this.webview.openNewWindow(val, this);
 				})
@@ -193,7 +192,7 @@
 				const subNVue = uni.getSubNVueById('popup');
 
 				this.webview.on(EVENT_TYPE['POST-MESSAGE'], info => {
-					console.log(info)
+					
 					app.globalData.webParam = info;
 					if (!app.globalData.showPopup) {
 						app.globalData.showPopup = true;

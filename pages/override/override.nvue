@@ -8,7 +8,7 @@
 		<text v-if="blackUrls.length>0" style="border-bottom: 1px solid #dddddd; padding: 15px 0px;font-weight: bold;">
 			{{$t("resourcelog.tips.3")}}
 		</text>
-		<text v-for="(item, index) in blackUrls" :key="index" class="list" :data-index="index" @tap="changeRequest">
+		<text v-for="(item, index) in blackUrls" :key="index" class="list" :data-index="index" @tap="changeRequest" @longpress="editBlackUrl(item)">
 			{{ item }}
 		</text>
 		<text v-if="blackClassList.length>0"
@@ -19,7 +19,7 @@
 			{{ item }}
 		</text>
 		<uni-popup ref="pops" type="dialog">
-			<uni-popup-dialog mode="input" message="Link/Domain" :duration="2000" :before-close="true" @close="showPoop"
+			<uni-popup-dialog :value='url' mode="input" message="Link/Domain" :duration="2000" :before-close="true" @close="showPoop"
 				@confirm="confrim"></uni-popup-dialog>
 		</uni-popup>
 	</view>
@@ -49,7 +49,8 @@
 		data() {
 			return {
 				blackUrls: [],
-				blackClassList: []
+				blackClassList: [],
+				url:''
 			};
 		},
 		onLoad() {
@@ -59,10 +60,12 @@
 		},
 		methods: {
 			$t: t,
-
+			editBlackUrl(url){
+				this.$refs.pops.open()
+				this.url = url;
+			},
 			showPoop(e) {
 				this.$refs.pops.close();
-
 			},
 			confrim(value) {
 				this.$refs.pops.close();
@@ -76,6 +79,7 @@
 
 			},
 			addoverride(e) {
+				this.url = '';
 				this.$refs.pops.open()
 			},
 			changeRequest(e) {

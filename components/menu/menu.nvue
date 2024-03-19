@@ -15,7 +15,7 @@
 			</uni-grid-item>
 
 			<uni-grid-item>
-				<view class="item" @click.stop="change(menuType.reload)">
+				<view class="item" @click.stop="change(menuType.reload)" @longpress.stop="change(menuType.reloadCache)">
 					<text class="cc-font icon">&#xe602;</text>
 					<text class="itme-text">{{$t('main.tips.7')}}</text>
 				</view>
@@ -36,7 +36,8 @@
 			<uni-grid-item>
 				<view class="item" @click.stop="change(menuType.ysmode)">
 					<text class="cc-font icon">&#xe662;</text>
-					<text class="itme-text">{{!privacyMode?$t('moremenu.open.nolist'):$t('moremenu.close.nolist')}}</text>
+					<text
+						class="itme-text">{{!privacyMode?$t('moremenu.open.nolist'):$t('moremenu.close.nolist')}}</text>
 				</view>
 			</uni-grid-item>
 			<uni-grid-item>
@@ -95,7 +96,7 @@
 		data() {
 			return {
 				read: false,
-				privacyMode:false,
+				privacyMode: false,
 				menuType: {
 					collect: 1, //收藏
 					bookmark: 2, //书签
@@ -106,7 +107,8 @@
 					extension: 7, //扩展
 					more: 8, //更多设置
 					res: 9,
-					ysmode:10, //隐私模式
+					ysmode: 10, //隐私模式
+					reloadCache: 11
 				}
 			};
 		},
@@ -145,6 +147,7 @@
 
 				_self.closeMask();
 				let webview = app.globalData.webview;
+				let activeWindow = webview.checkedActiveWebview();
 				switch (num) {
 					case this.menuType.collect:
 						uni.navigateTo({
@@ -157,9 +160,13 @@
 						});
 						break;
 					case this.menuType.reload:
-						let activeWindow = webview.checkedActiveWebview();
 						if (activeWindow) {
 							activeWindow.reload();
+						}
+						break;
+					case this.menuType.reloadCache:
+						if (activeWindow) {
+							activeWindow.reload(true);
 						}
 						break;
 					case this.menuType.readmod:
@@ -186,16 +193,28 @@
 						subNVue.show('', 0, function() {
 							uni.$emit('open-menu', 4);
 						});
-						
+
 						break;
 					case this.menuType.ysmode:
-					this.privacyMode = app.globalData.webview.History.privacyMode = !app.globalData.webview.History.privacyMode
-					break;
+						this.privacyMode = app.globalData.webview.History.privacyMode = !app.globalData.webview.History
+							.privacyMode;
+						if (this.privacyMode) {
+							uni.showToast({
+								icon: 'none',
+								title: t("moremenu.open.nolist")
+							})
+						} else {
+							uni.showToast({
+								icon: 'none',
+								title: t("moremenu.close.nolist")
+							})
+						}
+						break;
 					case this.menuType.extension:
 						uni.navigateTo({
-							url:'/pages/extension/extension'
+							url: '/pages/extension/extension'
 						})
-					break;
+						break;
 				}
 
 			}

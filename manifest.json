@@ -2,8 +2,8 @@
     "name" : "Script Browser 3",
     "appid" : "__UNI__A92EF1E",
     "description" : "",
-    "versionName" : "3.0.8",
-    "versionCode" : 308,
+    "versionName" : "3.1.1",
+    "versionCode" : 30101,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -18,7 +18,13 @@
             "delay" : 0
         },
         /* 模块配置 */
-        "modules" : {},
+        "modules" : {
+            "Webview-x5" : {
+                "timeOut" : 30000, // 超时时间
+                "allowDownloadWithoutWiFi" : true // 是否允许用户在非WiFi网络时进行x5内核的下载。默认值false（如果为true，就不会显示用户确认的弹窗。）
+            },
+            "VideoPlayer" : {}
+        },
         /* 应用发布信息 */
         "distribute" : {
             /* android打包配置 */
@@ -31,21 +37,17 @@
                     "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
                     "<uses-permission android:name=\"com.android.launcher.permission.INSTALL_SHORTCUT\"/>",
                     "<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
-                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
                     "<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
                     "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
                     "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
                     "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
-                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
-                    "<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
                     "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />",
                     "<uses-permission android:name=\"android.permission.MANAGE_EXTERNAL_STORAGE\" />",
-                    "    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                    "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
                     "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
                     "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
                     "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
-                    "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
                 ],
                 "abiFilters" : [ "arm64-v8a" ],

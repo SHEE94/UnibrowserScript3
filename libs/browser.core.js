@@ -102,8 +102,17 @@ class WebView extends EventEmitter {
 				let jsonback = info.jsonback || {};
 				if (info.from == 'webdata') {
 					this.emit(EVENT_TYPE['WEB-MESSAGE'], jsonback)
+					// 监听路由
 					if (jsonback.action == ACTION_TYPR.historyState) {
 						this.emit(EVENT_TYPE['HISTORY-STATE'], jsonback.data)
+					}
+					// 新窗口打开
+					if(jsonback.action == ACTION_TYPR._blank){
+						let url = jsonback.url
+						if(url){
+							this.openNewWindow(url)
+						}
+						
 					}
 				} else if (info.from == 'web') {
 					this.emit(EVENT_TYPE['POST-MESSAGE'], jsonback)

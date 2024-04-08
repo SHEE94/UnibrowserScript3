@@ -16,6 +16,7 @@ export const EVENT_TYPE = {
 
 export const ACTION_TYPR = {
 	'historyState':'historyState' ,//路由变化
-	'statistics':'statistics'
+	'statistics':'statistics',
+	'_blank':'_blank'
 }
 

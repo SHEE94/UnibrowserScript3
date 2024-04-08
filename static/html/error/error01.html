@@ -43,14 +43,16 @@
 	<div class="error-content">
 		<p class="url"></p>
 		<img src="./152error40401.png" alt="" srcset="" />
-		<div class="title" >Loading error! reload</div>
+		<div class="title" >Loading error! Reload</div>
 	</div>
 </body>
 <script>
 	var href = '';
 	document.addEventListener("error", function(e){
 		var url = e.url;  // 错误页面的url地址
-		document.querySelector('.url').textContent = url;
+		if(url.indexOf('file:')==-1){
+			document.querySelector('.url').textContent = url;
+		}
 	 	href = e.href; // 错误页面的完整路径（包括完整的协议头）
 	},false);
 	document.querySelector('.title').addEventListener('click',function(){

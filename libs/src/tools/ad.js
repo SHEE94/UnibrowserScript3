@@ -1,12 +1,12 @@
-const regStr = '([0-9].\D[0-9])|(.*--.*)'
-let blackUrls = uni.getStorageSync('blackUrls') || [regStr];
+
+let blackUrls = uni.getStorageSync('blackUrls') || [];
 const blackClassList = uni.getStorageSync('blackClassList') || [];
 export default class AD {
 	constructor(wv) {
 		this.wv = wv;
 
 		if (!blackUrls.length) {
-			blackUrls = [regStr]
+			blackUrls = []
 		}
 		this.wv.state.setData({
 			blackUrls,

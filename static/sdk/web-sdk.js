@@ -1,13 +1,12 @@
 "use strict";
-
-const startTime = Date.now()
+globalThis.startTime = Date.now()
 
 try {
 	;
 	(function() {
-
+		
 		cgsdk = function() {
-
+			
 			console.log('SDK LOADED')
 			window.WEB_SDK_LOADED = true;
 			const version = '3.0.0';
@@ -196,7 +195,7 @@ try {
 
 					try {
 						const dev = function() {
-							that.Data.speed = Date.now() - startTime;
+							that.Data.speed = Date.now() - globalThis.startTime;
 							let mate =
 								`<meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content: https://xxx.com;media-src * blob: 'self' http://* 'unsafe-inline' 'unsafe-eval';style-src * 'self' 'unsafe-inline';img-src * 'self' data: content:;connect-src * blob:;">`;
 
@@ -484,11 +483,7 @@ try {
 					if (typeof tagname == 'undefined' || !nodelist.includes(tagname.toLocaleLowerCase())) {
 						return null;
 					}
-					// if (tagname.toLocaleLowerCase() == 'video') {
-					// 	node.setAttribute('controls', 'controls')
-					// 	node.setAttribute('autoplay', false);
-					// 	return _appendChild.apply(this, arguments);
-					// }
+				
 
 					if (tagname.toLocaleLowerCase() == 'script') {
 						$websiteStatistics.addScript()
@@ -511,6 +506,16 @@ try {
 
 					return _appendChild.apply(this, arguments);
 				}
+			}
+
+
+			const _open = window.open;
+			window.open = function(){
+				webSDK.sendMessage({
+					action: '_blank',
+					url: encodeURIComponent(arguments[0])
+				})
+				return {};
 			}
 
 
@@ -594,7 +599,7 @@ try {
 			// ++++++++++++++++++++++++++++++++++
 			// otherWebsite()
 
-			window.addEventListener('DOMContentLoaded', function() {
+			/* window.addEventListener('DOMContentLoaded', function() {
 
 				window.WebKitMutationObserver ||
 					window.MozMutationObserver;
@@ -604,13 +609,13 @@ try {
 					let observer = new MutationObserver(function(records) {
 						// otherWebsite()
 					});
-					let body = document.querySelector('body')
+					let body = document.body || document.querySelector('body')
 					observer.observe(body, {
 						'childList': true,
 						'subtree': true
 					})
 				}
-			})
+			}) */
 
 			// +++++++++++++++++++++++++++++++++++++
 

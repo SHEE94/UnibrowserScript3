@@ -47,6 +47,7 @@
 	"setting.blank": "在新窗口打开页面",
 	"setting.homepage": "设置主页",
 	"setting.browser.name": "内核",
+	"setting.home.page.add": "添加",
 	
 	
 	"weblog.override-resource": "查看已拦截的资源",

@@ -47,6 +47,7 @@
 	"setting.blank": "Open the page in a new window",
 	"setting.homepage": "Set home tab",
 	"setting.browser.name": "Webview Core",
+	"setting.home.page.add": "Add",
 	
 	"weblog.override-resource": "blocked resources",
 	"weblog.type": "Type",

@@ -1,12 +1,12 @@
 "use strict";
 globalThis.startTime = Date.now()
-
+console.log('ADD SDK START')
 try {
 	;
 	(function() {
 		
 		cgsdk = function() {
-			
+			// if(window.location.protocol.indexOf('http')==-1)return;
 			console.log('SDK LOADED')
 			window.WEB_SDK_LOADED = true;
 			const version = '3.0.0';
@@ -767,6 +767,7 @@ try {
 		}
 
 		if (!window.WEB_SDK_LOADED) {
+			
 			window.plus ? cgsdk() : document.addEventListener('plusready', cgsdk, false);
 		}
 

@@ -234,7 +234,7 @@
 		// height: 230px;
 		background-color: rgba($color: #eeeeee, $alpha: 0.95);
 		padding: $uni-spacing-row-lg;
-
+		
 		.item {
 			height: 80px;
 			align-items: center;

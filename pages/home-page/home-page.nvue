@@ -10,7 +10,7 @@
 					</view>
 				</view>
 				<view class="right">
-					<button size="mini" @click="remove(index)">删除</button>
+					<button size="mini" @click="remove(index)">{{$t('script.tips.10')}}</button>
 				</view>
 			</label>
 		</radio-group>
@@ -22,7 +22,7 @@
 				</view>
 			</view>
 			<view class="right">
-				<button size="mini" type="primary" @click="addHome">添加</button>
+				<button size="mini" type="primary" @click="addHome">{{$t('setting.home.page.add')}}</button>
 			</view>
 		</view>
 	</view>
@@ -38,8 +38,18 @@
  *@LastEditors: Xianxu
  *@LastEditTime: 2024-02-02
  */
-
+import {
+		initVueI18n,
+		I18n
+	} from '@dcloudio/uni-i18n'
+	import messages from '@/locale/index'
+	const {
+		t,
+		setLocale
+	} = initVueI18n(messages)
 	const app = getApp()
+	const settingConfig = app.globalData.webview.Setting.settingConfig;
+	setLocale(settingConfig.language[settingConfig.langCurrnt].code);
 	export default {
 		data() {
 			return {
@@ -64,7 +74,11 @@
 						url: 'https://m.baidu.com/',
 						default: false
 					},
-					
+					{
+						title: 'searx',
+						url: 'https://searx.rhscz.eu/',
+						default: false
+					},
 
 				]
 			};
@@ -72,7 +86,7 @@
 		onLoad() {
 			this.webview = app.globalData.webview;
 			const homepageList = uni.getStorageSync('homepageList')
-			if (homepageList) {
+			if (homepageList && homepageList.length) {
 				this.homepageList = homepageList
 			}
 
@@ -92,6 +106,7 @@
 			})
 		},
 		methods: {
+			$t:t,
 			addHome() {
 				this.homepageList.push({
 					title: '',

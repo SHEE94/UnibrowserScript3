@@ -51,7 +51,7 @@ require(['jquery'], function($) {
 
 	var settingsFn = function(storage) {
 		this.storage = {
-			engines: "quark",
+			engines: "xsearch",
 			bookcolor: "black",
 			searchHistory: true
 		};
@@ -883,6 +883,7 @@ require(['jquery'], function($) {
 				window.via.searchText(text);
 			} else {
 				location.href = {
+					xsearch:"https://searx.rhscz.eu/search?q=%s&language=auto",
 					baidu: "https://m.baidu.com/s?wd=%s",
 					quark: "https://quark.sm.cn/s?q=%s",
 					google: "https://www.google.com/search?q=%s",
@@ -1354,6 +1355,9 @@ require(['jquery'], function($) {
 			"type": "select",
 			"value": "engines",
 			"data": [{
+				"t": "Searx",
+				"v": "xsearch"
+			}, {
 				"t": "夸克搜索",
 				"v": "quark"
 			}, {

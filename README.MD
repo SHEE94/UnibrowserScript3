@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/license-MIT-green)  ![](https://img.shields.io/badge/version-3.1.1-red)
+![](https://img.shields.io/badge/license-MIT-green)  ![](https://img.shields.io/badge/version-3.1.3-red)
 # 说明
 一个完全由uniapp开发的浏览器，并支持添加运行外部脚本，自带一个脚本编辑器,拥有比较完整的浏览器体验。
 
